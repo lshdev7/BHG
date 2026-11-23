@@ -1,261 +1,41 @@
 #!/usr/bin/env python3
-"""Static site generator for the BHG SAR Government homepage .
+"""Static site generator for the BHG SAR Government portal (GovBHG).
 
-Layout and information architecture follow the GovHK residents homepage
-(header / language bar / search / mega menu / banner / quick links / online services /
-forms / information & services / guidebooks / features / social groups / footer).
-No HKSAR assets, logos or text are reused; all content is original.
+The layout, information architecture and visual design follow the GovHK portal
+(home page, category / topic / service pages). All code, artwork and wording are original.
 
-Usage: python3 tools/build.py   ->  writes index.html, en/, ko/, zh/
+    python3 tools/build.py        # writes index.html, en/, ko/, zh-hant/, zh-hans/
 """
 import html
 import os
+import shutil
+import sys
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-LANGS = [  # code, folder, <html lang>, label shown in the language bar
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)
+sys.path.insert(0, HERE)
+
+import data as D          # noqa: E402
+from t2s_map import T2S, PHRASES  # noqa: E402
+
+LANGS = [  # code, folder, <html lang>, label
     ("en", "en", "en", "English"),
     ("ko", "ko", "ko", "한국어"),
     ("hant", "zh-hant", "zh-Hant", "繁體中文"),
     ("hans", "zh-hans", "zh-Hans", "简体中文"),
 ]
-IDX = {"en": 0, "ko": 1, "hant": 2, "hans": 3}  # hans is derived from the Traditional text via T2S
-
-# Traditional -> Simplified (char map generated once with OpenCC t2s; phrases override HK-style terms)
-T2S = {
-    "來":"来","個":"个","們":"们","傭":"佣","傳":"传","僱":"雇","兒":"儿","內":"内",
-    "冊":"册","別":"别","劃":"划","動":"动","務":"务","勞":"劳","區":"区","員":"员",
-    "問":"问","單":"单","園":"园","圖":"图","執":"执","報":"报","場":"场","婦":"妇",
-    "學":"学","專":"专","尋":"寻","對":"对","峴":"岘","帶":"带","廢":"废","徑":"径",
-    "徵":"征","憲":"宪","應":"应","換":"换","據":"据","數":"数","於":"于","書":"书",
-    "會":"会","業":"业","構":"构","樂":"乐","樓":"楼","橫":"横","檔":"档","權":"权",
-    "氣":"气","無":"无","熱":"热","營":"营","獎":"奖","環":"环","療":"疗","發":"发",
-    "眾":"众","碼":"码","礙":"碍","稅":"税","簡":"简","簽":"签","約":"约","結":"结",
-    "統":"统","網":"网","繳":"缴","聞":"闻","聯":"联","聲":"声","職":"职","與":"与",
-    "舉":"举","處":"处","覽":"览","計":"计","訊":"讯","訓":"训","記":"记","訪":"访",
-    "設":"设","診":"诊","註":"注","試":"试","話":"话","語":"语","說":"说","課":"课",
-    "調":"调","請":"请","證":"证","護":"护","財":"财","責":"责","貿":"贸","資":"资",
-    "質":"质","載":"载","連":"连","進":"进","選":"选","醫":"医","長":"长","門":"门",
-    "開":"开","關":"关","隱":"隐","電":"电","頁":"页","預":"预","題":"题","額":"额",
-    "館":"馆","駕":"驾","駛":"驶","體":"体","點":"点",
-}
-T2S_PHRASES = [
-    ("流動通訊", "移动通信"), ("流動應用程式", "移动应用程序"), ("開放數據入門網站", "开放数据门户网站"),
-    ("入門網站", "门户网站"), ("資訊保安", "信息安全"), ("資訊", "信息"), ("數碼", "数字"),
-    ("通訊", "通信"), ("智方便", "智方便"),
-]
+IDX = {"en": 0, "ko": 1, "hant": 2, "hans": 3}
 
 
+# ----------------------------------------------------------------------------- text helpers
 def s2(text):
-    for a, b in T2S_PHRASES:
+    for a, b in PHRASES:
         text = text.replace(a, b)
-    return "".join(T2S.get(ch, ch) for ch in text)
-
-
-# --------------------------------------------------------------------------- UI strings
-UI = {
-    "site_title": ("Baekhyeon Hwarang SAR Government", "백현화랑특별행정구 정부", "柏峴화랑特別行政區政府"),
-    "site_short": ("GovBHG", "정부포털 BHG", "BHG政府入門網站"),
-    "region": ("Baekhyeon Hwarang Special Administrative Region", "백현화랑특별행정구", "柏峴화랑特別行政區"),
-    "skip": ("Skip to main content", "본문 바로가기", "跳至主要內容"),
-    "text_size": ("Text Size", "글자 크기", "字體大小"),
-    "languages": ("Languages", "언어", "語言"),
-    "search": ("Search All Government", "정부 전체 검색", "搜尋所有政府網頁"),
-    "search_btn": ("Search", "검색", "搜尋"),
-    "search_none": ("No matching pages found.", "일치하는 페이지가 없습니다.", "找不到相符的網頁。"),
-    "search_res": ("Search results", "검색 결과", "搜尋結果"),
-    "menu": ("Main Menu", "주 메뉴", "主選單"),
-    "toggle_menu": ("Toggle Menu", "메뉴 열기/닫기", "切換選單"),
-    "toast": (
-        "This page is under construction.",
-        "이 페이지는 준비 중입니다.",
-        "此頁面正在建設中。",
-    ),
-    "banner": ("Homepage Banner", "홈페이지 배너", "主頁橫額"),
-    "prev": ("Go to previous page", "이전", "上一頁"),
-    "next": ("Go to next page", "다음", "下一頁"),
-    "quick": ("Quick Links", "바로가기", "快速連結"),
-    "top_online": ("Top Online Services", "인기 온라인 서비스", "熱門網上服務"),
-    "more_online": ("More Top Online Services >", "인기 온라인 서비스 더 보기 >", "更多熱門網上服務 >"),
-    "top_forms": ("Top Government Forms", "인기 정부 서식", "熱門政府表格"),
-    "more_forms": ("More Top Government Forms >", "인기 정부 서식 더 보기 >", "更多熱門政府表格 >"),
-    "info": ("Government Information & Services", "정부 정보 및 서비스", "政府資訊及服務"),
-    "guide": ("Guidebooks", "안내서", "指南"),
-    "more_guide": ("More Guidebooks >", "안내서 더 보기 >", "更多指南 >"),
-    "features": ("Features", "특집", "專題"),
-    "check": ("Check it Out", "함께 보기", "精選推介"),
-    "social": ("Social Groups", "사회 그룹", "社群"),
-    "top": ("Back To Top", "맨 위로", "返回頁首"),
-    "footer_menu": ("Footer Menu", "하단 메뉴", "頁尾選單"),
-    "copyright": (
-        "© 2026 Baekhyeon Hwarang SAR Government. All rights reserved.",
-        "© 2026 백현화랑특별행정구 정부. 모든 권리 보유.",
-        "© 2026 柏峴화랑特別行政區政府。版權所有。",
-    ),
-    "geo": (
-        "Located in the Baekhyeon Maeul Complexes 3 and 4, Seongnam.",
-        "경기도 성남시 백현마을 3단지·4단지 일대에 위치합니다.",
-        "位於城南市柏峴마을 3、4社區一帶。",
-    ),
-}
-
-TABS = [  # key, label
-    ("res", ("Residents", "주민", "居民")),
-    ("biz", ("Business & Trade", "비즈니스·무역", "工商貿易")),
-    ("non", ("Non-Residents", "비거주자", "非居民")),
-]
-
-# Residents categories: (id, label, [sub items])
-RES = [
-    ("comm", ("Communications & Technology", "통신 및 기술", "通訊及科技"), [
-        ("Information Security & Internet Services", "정보보안 및 인터넷 서비스", "資訊保安及互聯網服務"),
-        ("Mobile Communications Services", "이동통신 서비스", "流動通訊服務"),
-        ("e-Government", "전자정부", "電子政府"),
-    ]),
-    ("cult", ("Culture, Leisure & Sports", "문화·여가·체육", "文化、康樂及體育"), [
-        ("Library Services", "도서관 서비스", "圖書館服務"),
-        ("Heritage & Museums", "문화유산 및 박물관", "文物及博物館"),
-        ("Parks, Trails & Recreation", "공원·산책로·여가", "公園、步行徑及康樂"),
-    ]),
-    ("edu", ("Education & Training", "교육 및 훈련", "教育及培訓"), [
-        ("Primary & Secondary Education", "초·중등 교육", "小學及中學教育"),
-        ("Post-Secondary Education", "고등교육", "專上教育"),
-        ("Financial Assistance & Scholarships", "학자금 지원 및 장학금", "財政資助及獎學金"),
-    ]),
-    ("emp", ("Employment", "고용", "僱傭"), [
-        ("Looking for a Job", "구직", "求職"),
-        ("Labour Legislation & Guidelines", "노동 법령 및 지침", "勞工法例及指引"),
-        ("Occupational Safety & Health", "산업안전보건", "職業安全及健康"),
-    ]),
-    ("env", ("Environment", "환경", "環境"), [
-        ("Waste & Recycling", "폐기물 및 재활용", "廢物及回收"),
-        ("Air Quality", "대기질", "空氣質素"),
-        ("Nature Conservation", "자연 보전", "自然護理"),
-    ]),
-    ("gov", ("Government, Law & Order", "정부·법·치안", "政府、法律及秩序"), [
-        ("Government Structure", "정부 조직", "政府架構"),
-        ("Elections", "선거", "選舉"),
-        ("Laws of the SAR", "특별행정구 법령", "區內法例"),
-    ]),
-    ("health", ("Health & Medical Services", "보건 및 의료 서비스", "衞生及醫療服務"), [
-        ("Hospitals & Clinics", "병원 및 의원", "醫院及診所"),
-        ("Communicable Diseases", "감염병", "傳染病"),
-        ("Mental Health", "정신건강", "精神健康"),
-    ]),
-    ("house", ("Housing & Social Services", "주거 및 사회복지", "房屋及社會服務"), [
-        ("Housing Schemes", "주택 제도", "房屋計劃"),
-        ("Building Management", "건물 관리", "樓宇管理"),
-        ("Social Security & Assistance", "사회보장 및 지원", "社會保障及援助"),
-    ]),
-    ("imm", ("Immigration Services", "출입경 서비스", "入境服務"), [
-        ("Identity Cards and Right of Abode", "신분증 및 거주권", "身份證及居留權"),
-        ("SAR Travel Documents", "특별행정구 여행증명서", "特區旅行證件"),
-        ("Immigration Control", "출입경 관리", "入境管制"),
-    ]),
-    ("tax", ("Taxes & Duties", "세금 및 관세", "稅務及關稅"), [
-        ("Salaries Tax & Personal Assessment", "근로소득세 및 개인 과세", "薪俸稅及個人入息課稅"),
-        ("Profits Tax", "법인이윤세", "利得稅"),
-        ("Tax Return Filing & Payment", "세금 신고 및 납부", "報稅及繳稅"),
-    ]),
-    ("trans", ("Transport & Motoring", "교통 및 운전", "交通及駕駛"), [
-        ("Public Transport", "대중교통", "公共交通"),
-        ("Driving Licences & Tests", "운전면허 및 시험", "駕駛執照及考試"),
-        ("Cross-Boundary Travel", "경계 통과 이동", "跨境交通"),
-    ]),
-]
-
-BIZ = [
-    ("Business Facilitation", "기업 활동 지원", "營商便利措施"),
-    ("Doing Business with the Government", "정부와의 거래", "與政府進行商業交易"),
-    ("Registration & Licences", "등록 및 인허가", "註冊及牌照"),
-    ("Import & Export", "수출입", "進出口"),
-    ("Market Information & Statistics", "시장 정보 및 통계", "市場資訊及統計"),
-    ("Support for Local & Foreign Enterprises", "내·외국 기업 지원", "對本地及外地企業的支援"),
-    ("Taxes", "세금", "稅務"),
-    ("Online Services for Business & Trade", "기업·무역 온라인 서비스", "工商貿易網上服務"),
-]
-NON = [
-    ("Visiting the SAR", "특별행정구 방문", "訪問特區"),
-    ("Working in the SAR", "특별행정구 근무", "在特區工作"),
-    ("Studying in the SAR", "특별행정구 유학", "在特區升學"),
-    ("Living in the SAR", "특별행정구 거주", "在特區生活"),
-    ("Doing Business in the SAR", "특별행정구 사업", "在特區營商"),
-    ("Online Services for Non-Residents", "비거주자 온라인 서비스", "非居民網上服務"),
-]
-
-SLIDES = [  # (title, sub, theme)
-    (("The Basic Law of the Baekhyeon Hwarang SAR", "백현화랑특별행정구 기본법", "柏峴화랑特別行政區基本法"),
-     ("The constitutional document of the Region", "특별행정구의 헌법적 문서", "特別行政區的憲制性文件"), "flag"),
-    (("The Chief Executive's Policy Address", "행정장관 시정연설", "行政長官施政報告"),
-     ("Priorities for the year ahead", "새해 시정 우선과제", "來年施政重點"), "a"),
-    (("Apply for a SAR Passport", "특별행정구 여권 신청", "申請特區護照"),
-     ("Issued by the Immigration Department", "출입경사무처 발급", "由入境事務處簽發"), "b"),
-    (("The Regional Flag and Emblem", "특별행정구 기와 휘장", "區旗及區徽"),
-     ("Symbols of the Baekhyeon Hwarang SAR", "백현화랑특별행정구의 상징", "柏峴화랑特別行政區的象徵"), "c"),
-]
-
-QUICK = [
-    ("Press Releases", "보도자료", "新聞公報"),
-    ("Public Holidays", "공휴일", "公眾假期"),
-    ("Government Telephone Directory", "정부 전화번호부", "政府電話簿"),
-    ("Open Data Portal", "공공데이터 포털", "開放數據入門網站"),
-    ("Mobile Apps", "모바일 앱", "流動應用程式"),
-    ("Webcast Archives", "웹캐스트 보관함", "網上直播檔案"),
-    ("Download the Flag & Emblem", "기와 휘장 내려받기", "下載區旗及區徽"),
-    ("\"BH Smart\" Resident Digital ID", "\"BH 스마트\" 주민 디지털 신원", "「BH智方便」居民數碼身份"),
-]
-ONLINE = [
-    ("Apply for a SAR Passport", "특별행정구 여권 신청", "申請特區護照"),
-    ("Book an Appointment for the Smart Identity Card", "스마트 신분증 신청 예약", "預約申請智能身份證"),
-    ("Access the Individual Tax Portal", "개인 납세 포털 이용", "使用個人稅務入門網站"),
-    ("Calculate Tax Liability", "납부 세액 계산", "計算稅款"),
-]
-FORMS = [
-    ("Application for a SAR Passport", "특별행정구 여권 신청서", "特區護照申請表"),
-    ("Application for a Smart Identity Card", "스마트 신분증 신청서", "智能身份證申請表"),
-    ("Application for a Re-entry Permit", "재입경 허가 신청서", "回港證申請表"),
-    ("Notification of Change of Address", "주소 변경 신고서", "更改地址通知書"),
-    ("Birth Registration Form", "출생 등록 신청서", "出生登記表格"),
-]
-GUIDES = [
-    ("Application for a SAR Passport", "특별행정구 여권 신청 안내", "申請特區護照指南"),
-    ("Information on Recreation & Sports", "여가·체육 안내", "康樂及體育資訊指南"),
-    ("Driving Test Appointment Booking", "운전시험 예약 안내", "駕駛考試預約指南"),
-]
-FEATURES = [
-    ("Births Registration", "출생 등록", "出生登記"),
-    ("Parenting", "육아", "育兒"),
-    ("Marriage Registration", "혼인 등록", "婚姻登記"),
-    ("Property", "부동산", "物業"),
-    ("Elderly Services & Benefits", "노인 서비스 및 혜택", "長者服務及福利"),
-    ("Deaths Registration", "사망 등록", "死亡登記"),
-]
-CHECK = [
-    ("Baekhyeon Maeul at a Glance", "백현마을 한눈에 보기", "柏峴마을概覽"),
-    ("Regional Flag Design", "기 도안 소개", "區旗設計簡介"),
-    ("SAR Passport Features", "특별행정구 여권 안내", "特區護照特色"),
-    ("2026 Population Survey", "2026 인구 조사", "2026年人口調查"),
-]
-SOCIAL = [
-    ("Women's Commission", "여성위원회", "婦女事務委員會"),
-    ("Youth Portal", "청년 포털", "青年網站"),
-    ("Happy Family Info Hub", "행복한 가정 정보센터", "快樂家庭資訊站"),
-    ("eElderly", "e-어르신", "長者電子網站"),
-    ("Accessibility Hub", "접근성 허브", "無障礙資訊站"),
-]
-FOOTER = [
-    ("About Us", "사이트 소개", "關於我們"),
-    ("About Baekhyeon Hwarang", "백현화랑 소개", "關於柏峴화랑"),
-    ("Accessibility", "접근성", "無障礙"),
-    ("Help", "도움말", "說明"),
-    ("Linking to GovBHG", "링크 안내", "連結本網站"),
-    ("Copyright Notice", "저작권 안내", "版權公告"),
-    ("Disclaimer", "면책 고지", "免責聲明"),
-    ("Privacy Policy", "개인정보 처리방침", "私隱政策"),
-]
+    return "".join(T2S.get(c, c) for c in text)
 
 
 def g(tup, i):
-    """Raw (unescaped) text for language index i; index 3 = Simplified, derived from Traditional."""
+    """Raw text of a trilingual tuple; i == 3 -> Simplified derived from Traditional."""
     return s2(tup[2]) if i == 3 else tup[i]
 
 
@@ -263,180 +43,491 @@ def t(tup, i):
     return html.escape(g(tup, i))
 
 
-def ph(label, i, cls="", extra=""):
-    """Placeholder link (page under construction)."""
-    c = f' class="{cls}"' if cls else ""
-    return f'<a href="#" data-s{c}{extra}>{t(label, i)}</a>'
+def U(key, i):
+    return t(D.UI[key], i)
 
 
-def build_page(code, folder, htmllang, i):
-    u = lambda k: t(UI[k], i)
-    # header language links
-    lang_links = []
-    for c, f, hl, lab in LANGS:
-        if c == code:
-            lang_links.append(f'<li><a class="cur" href="../{f}/" lang="{hl}" aria-current="true">{lab}</a></li>')
-        else:
-            lang_links.append(f'<li><a href="../{f}/" lang="{hl}" hreflang="{hl}">{lab}</a></li>')
-    langs_html = "\n".join(lang_links)
+# ----------------------------------------------------------------------------- page registry
+def depth(path):
+    return len([p for p in path.split("/") if p])
 
-    # mega menu panels
-    res_cols = []
-    for cid, lab, subs in RES:
-        items = "".join(f"<li>{ph(s, i)}</li>" for s in subs)
-        res_cols.append(f'<div class="mm-col"><h4>{ph(lab, i)}</h4><ul>{items}</ul></div>')
-    res_panel = "".join(res_cols)
-    biz_panel = '<div class="mm-col wide"><ul>' + "".join(f"<li>{ph(s, i)}</li>" for s in BIZ) + "</ul></div>"
-    non_panel = '<div class="mm-col wide"><ul>' + "".join(f"<li>{ph(s, i)}</li>" for s in NON) + "</ul></div>"
-    panels = {"res": res_panel, "biz": biz_panel, "non": non_panel}
 
-    tabs_html = "".join(
-        f'<li><button type="button" class="tab" aria-expanded="false" aria-controls="mm-{k}" data-panel="mm-{k}">{t(lab, i)}</button></li>'
-        for k, lab in TABS
+def rel(cur, target):
+    """Relative URL (inside one language folder) from page `cur` to page `target`."""
+    up = "../" * depth(cur)
+    if not target:
+        return up or "./"
+    return up + target + "/"
+
+
+MISC = {}          # slug -> title tuple   (generic pages under misc/)
+PAGES = {}         # path -> dict
+
+
+def reg(path, **kw):
+    PAGES[path] = kw
+
+
+def build_registry():
+    PAGES.clear()
+    reg("", kind="home", tab="residents", title=D.UI["site_full"])
+    reg("business", kind="home", tab="business", title=D.TABS[1][1])
+    reg("nonresidents", kind="home", tab="nonresidents", title=D.TABS[2][1])
+    for tab, _lab in D.TABS:
+        for cslug, ctitle, subs in D.TREE[tab]:
+            cp = "%s/%s" % (tab, cslug)
+            reg(cp, kind="cat", tab=tab, cat=cslug, title=ctitle)
+            for sslug, stitle in subs:
+                sp = "%s/%s" % (cp, sslug)
+                reg(sp, kind="sub", tab=tab, cat=cslug, sub=sslug, title=stitle)
+                leaves = D.LEAVES.get((cslug, sslug), []) if tab == "residents" else []
+                for lslug, ltitle in leaves:
+                    lp = "%s/%s" % (sp, lslug)
+                    reg(lp, kind="leaf", tab=tab, cat=cslug, sub=sslug, leaf=lslug, title=ltitle)
+                    for xslug, xtitle in D.SUBLEAVES.get((cslug, sslug, lslug), []):
+                        xp = "%s/%s" % (lp, xslug)
+                        kind = "service" if xslug == "apply" else "leaf2"
+                        reg(xp, kind=kind, tab=tab, cat=cslug, sub=sslug, leaf=lslug, subleaf=xslug, title=xtitle)
+        reg("%s/onlineservices" % tab, kind="list", tab=tab, title=D.ONLINE_PAGE, what="online")
+        reg("%s/forms" % tab, kind="list", tab=tab, title=D.FORMS_PAGE, what="forms")
+    # generic pages for every other linked item
+    items = []
+    items += [(s, tt) for s, tt in D.QUICK]
+    for tab in D.ONLINE:
+        items += list(D.ONLINE[tab]) + list(D.FORMS[tab])
+    items += [(s, tt) for s, tt, _ in D.GUIDES]
+    items += [(s, tt) for s, tt, _ in D.FEATURES]
+    items += [(s, tt) for s, tt, _c in D.CHECK]
+    items += list(D.SOCIAL) + list(D.FOOTER) + list(D.HOT)
+    items += [("govsites", D.GOVSITES)]
+    for slug, title in items:
+        MISC.setdefault(slug, title)
+    for slug, title in MISC.items():
+        if slug in ("passport", "idcard", "etax"):
+            continue
+        reg("misc/%s" % slug, kind="misc", tab="residents", title=title, slug=slug)
+    for n, (title, _c, _k) in enumerate(D.HERO_CARDS):
+        reg("misc/hero%d" % n, kind="misc", tab="residents", title=title, slug="hero%d" % n)
+    reg("misc/advsearch", kind="misc", tab="residents", title=D.UI["adv"], slug="advsearch")
+    reg("misc/guides", kind="misc", tab="residents", title=D.UI["guide"], slug="guides")
+    reg("misc/apply", kind="misc", tab="residents", title=("Application through the Internet for BHG SAR Passport", "인터넷 특별행정구 여권 신청", "透過互聯網申請柏峴화랑特別行政區護照"), slug="apply")
+    for slug, title in (("appointment", ("Make an Appointment to Apply for Travel Documents", "여행증명서 신청 예약", "預約申請旅行證件")),
+                        ("photo", ("Photograph Requirements", "사진 규격", "照片規格")),
+                        ("faq", ("Frequently Asked Questions", "자주 묻는 질문", "常見問題")),
+                        ("fees", ("Fees", "수수료", "費用"))):
+        reg("misc/%s" % slug, kind="misc", tab="residents", title=title, slug=slug)
+
+
+def target_of(slug):
+    """Page path an item slug resolves to."""
+    if slug == "passport":
+        return "residents/immigration/traveldoc/passport/apply"
+    if slug == "idcard":
+        return "residents/immigration/idcard"
+    if slug == "etax":
+        return "residents/taxes/etax"
+    return "misc/%s" % slug
+
+
+# ----------------------------------------------------------------------------- icons
+ICONS = {
+    "wifi": '<g fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"><path d="M6 19a26 26 0 0136 0"/><path d="M14 28a15 15 0 0120 0"/></g><circle cx="24" cy="37" r="4"/>',
+    "ball": '<circle cx="24" cy="24" r="20"/><path d="M24 13l8 6-3 9H19l-3-9z" fill="#fff"/><path d="M24 13V6M32 19l7-3M29 28l5 7M19 28l-5 7M16 19l-7-3" stroke="#fff" stroke-width="2.4" fill="none"/>',
+    "cap": '<path d="M24 8L2 19l22 11 18-9v12h4V19z"/><path d="M11 27v8c0 3 6 6 13 6s13-3 13-6v-8l-13 6.5z"/>',
+    "brief": '<rect x="4" y="14" width="40" height="27" rx="4"/><path d="M17 14v-4a3 3 0 013-3h8a3 3 0 013 3v4" fill="none" stroke="currentColor" stroke-width="4"/><rect x="4" y="25" width="40" height="3.4" fill="#fff"/><rect x="21" y="23" width="6" height="7" rx="1" fill="#fff"/>',
+    "leaf": '<path d="M41 6C21 5 8 15 8 30c0 4 1.5 7 4 9l-4.5 5 3 2.5 5-5.5c2 .8 4 1 6.5 1 14 0 20-14 19-36z"/>',
+    "scale": '<g fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M24 7v33M11 41h26M7 13h34"/><path d="M7 13L1.5 28a5.5 4 0 0011 0zM41 13l-5.5 15a5.5 4 0 0011 0z"/></g>',
+    "heart": '<path d="M24 43S3 30 3 17a10.5 10.5 0 0121-3 10.5 10.5 0 0121 3c0 13-21 26-21 26z"/>',
+    "house": '<path d="M24 5L2 25h6v17h11V30h10v12h11V25h6z"/>',
+    "globepin": '<circle cx="21" cy="27" r="17"/><path d="M4 27h34M21 10c-8 8-8 26 0 34M21 10c8 8 8 26 0 34" stroke="#fff" fill="none" stroke-width="2.4"/><circle cx="37" cy="12" r="8.5" stroke="#fff" stroke-width="2.6"/><circle cx="37" cy="12" r="3" fill="#fff"/>',
+    "coins": '<ellipse cx="24" cy="12" rx="15" ry="6"/><path d="M9 17v6c0 3 7 6 15 6s15-3 15-6v-6c0 3-7 6-15 6s-15-3-15-6z"/><path d="M9 27v6c0 3 7 6 15 6s15-3 15-6v-6c0 3-7 6-15 6s-15-3-15-6z"/>',
+    "car": '<path d="M7 24l4-11c1-2 3-3 5-3h16c2 0 4 1 5 3l4 11c3 1 4 3 4 6v7h-5v3h-7v-3H17v3h-7v-3H5v-7c0-3 1-5 4-6z"/><circle cx="13" cy="31" r="2.5" fill="#fff"/><circle cx="35" cy="31" r="2.5" fill="#fff"/><path d="M13 22l2.5-7h17l2.5 7z" fill="#fff"/>',
+    "globe": '<g fill="none" stroke="currentColor" stroke-width="3.4"><circle cx="24" cy="24" r="19.5"/><ellipse cx="24" cy="24" rx="9" ry="19.5"/><path d="M5 24h38M8 14h32M8 34h32"/></g>',
+}
+TILE_ICON = {
+    "communication": "wifi", "culture": "ball", "education": "cap", "employment": "brief", "environment": "leaf",
+    "government": "scale", "health": "heart", "housing": "house", "immigration": "globepin", "taxes": "coins",
+    "transport": "car", "govsites": "globe",
+    "csr": "heart", "korea": "globe", "businessgov": "brief", "ecommerce": "wifi", "global": "globe", "hr": "scale",
+    "market": "coins", "registration": "brief", "support": "house",
+    "visiting": "globepin", "working": "brief", "studying": "cap", "visarequire": "globepin", "living": "house",
+    "doingbusiness": "coins",
+}
+
+
+def svg(name, cls=""):
+    return '<svg class="ic %s" viewBox="0 0 48 48" fill="currentColor" aria-hidden="true" focusable="false">%s</svg>' % (cls, ICONS[name])
+
+
+GUIDE_ICON = {
+    "passport": '<rect x="9" y="4" width="30" height="40" rx="3"/><circle cx="24" cy="21" r="8"/><path d="M16 21h16M24 13c-4 4-4 12 0 16M24 13c4 4 4 12 0 16M15 36h18"/>',
+    "calendar": '<rect x="5" y="8" width="38" height="34" rx="3"/><path d="M5 18h38M14 4v8M34 4v8M13 26h5M22 26h5M31 26h5M13 34h5M22 34h5"/>',
+    "car": '<path d="M7 28l4-11c1-2 3-3 5-3h16c2 0 4 1 5 3l4 11v9H7z"/><path d="M5 28h38M13 33h4M31 33h4M10 37v4h6v-4M32 37v4h6v-4"/>',
+}
+FEAT_ICON = {
+    "baby": '<circle cx="24" cy="24" r="7"/><path d="M16 38c3-5 13-5 16 0M20 21h.01M28 21h.01"/>',
+    "heart": '<path d="M24 36S11 28 11 19a6.5 6.5 0 0113-2 6.5 6.5 0 0113 2c0 9-13 17-13 17z"/>',
+    "book": '<path d="M10 14h12c2 0 2 2 2 2v20c0-2-2-2-2-2H10zM38 14H26c-2 0-2 2-2 2v20c0-2 2-2 2-2h12z"/>',
+    "rings": '<circle cx="19" cy="28" r="8"/><circle cx="29" cy="28" r="8"/><path d="M21 14l3-4 3 4-3 4z"/>',
+    "house": '<path d="M10 25L24 12l14 13M14 23v14h20V23"/><circle cx="24" cy="30" r="3.5"/>',
+}
+
+
+def search_icon():
+    return ('<svg class="sicon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="10" cy="10" r="6.5" fill="none" '
+            'stroke="currentColor" stroke-width="2.2"/><path d="M15 15l6 6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>')
+
+
+def logo_html(i, big):
+    cn1 = "柏岘화랑政府" if i == 3 else "柏峴화랑政府"
+    return (
+        '<a class="logo%s" href="%%HOME%%" aria-label="%s">'
+        '<img class="logo-flag" src="%%ASSETS%%flag.jpg" alt="" width="%d" height="%d">'
+        '<span class="logo-txt"><span class="g1">Gov</span><span class="g2">BHG</span>'
+        '<span class="g3">%s</span><span class="g4">一站通</span></span></a>'
+        % (" big" if big else "", html.escape(D.UI["site"][0]), 120 if big else 60, 80 if big else 40, cn1)
     )
-    panels_html = "".join(
-        f'<div class="mm-panel" id="mm-{k}" hidden><div class="wrap mm-grid">{panels[k]}</div></div>' for k, _ in TABS
+
+
+# ----------------------------------------------------------------------------- shared chunks
+def top_bar(i, cur):
+    langs = []
+    for code, folder, hl, label in LANGS:
+        up = "../" * (depth(cur) + 1)
+        href = "%s%s/%s" % (up, folder, (cur + "/") if cur else "")
+        cls = ' class="cur"' if IDX[code] == i else ""
+        langs.append('<li><a href="%s" lang="%s" hreflang="%s"%s>%s</a></li>' % (href, hl, hl, cls, label))
+    return (
+        '<div class="topbar"><div class="wrap topbar-in"><ul class="tools">'
+        '<li class="ts"><button type="button" id="textsize">%s</button></li>'
+        '<li class="lg"><button type="button" class="lg-btn" aria-expanded="false" aria-controls="langmenu">'
+        '<svg viewBox="0 0 24 24" class="globe" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/>'
+        '<path d="M3 12h18M12 3c-4 4-4 14 0 18M12 3c4 4 4 14 0 18" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>'
+        '<span>%s</span><i class="caret"></i></button>'
+        '<ul class="langmenu" id="langmenu" hidden>%s</ul></li></ul></div></div>'
+        % (U("text_size", i), U("languages", i), "".join(langs))
     )
 
-    slides_html = []
-    for n, (title, sub, theme) in enumerate(SLIDES):
-        extra = '<img class="slide-flag" src="../assets/flag.jpg" alt="" width="300" height="201">' if theme == "flag" else ""
-        slides_html.append(
-            f'<div class="slide theme-{theme}" role="group" aria-roledescription="slide" '
-            f'aria-label="{n+1} / {len(SLIDES)}"{" hidden" if n else ""}>'
-            f'<div class="slide-text"><h3><a href="#" data-s>{t(title, i)}</a></h3><p>{t(sub, i)}</p></div>{extra}</div>'
+
+def mega_panels(i, cur):
+    out = []
+    for tab, lab in D.TABS:
+        cols = []
+        items = D.TREE[tab]
+        half = (len(items) + 1) // 2
+        for chunk in (items[:half], items[half:]):
+            li = "".join('<li><a href="%s">%s</a></li>' % (rel(cur, "%s/%s" % (tab, cs)), t(ct, i)) for cs, ct, _ in chunk)
+            cols.append('<ul class="mm-col">%s</ul>' % li)
+        bottom = (
+            '<ul class="mm-bottom"><li><a href="%s">%s<span class="vh"> %s</span></a></li>'
+            '<li><a href="%s">%s<span class="vh"> %s</span></a></li>'
+            '<li><a href="%s">%s</a></li></ul>'
+            % (rel(cur, "%s/onlineservices" % tab), t(D.ONLINE_PAGE, i), t(lab, i),
+               rel(cur, "%s/forms" % tab), t(D.FORMS_PAGE, i), t(lab, i),
+               rel(cur, "misc/govsites"), t(D.GOVSITES, i))
         )
-    dots = "".join(
-        f'<button type="button" class="dot{" on" if n == 0 else ""}" aria-label="{n+1}" data-i="{n}"></button>'
-        for n in range(len(SLIDES))
+        out.append('<div class="mm t-%s" id="mm-%s" hidden><div class="wrap mm-in"><div class="mm-cols">%s</div>%s</div></div>'
+                   % (tab, tab, "".join(cols), bottom))
+    return "".join(out)
+
+
+def search_block(i, cur):
+    hot = "".join('<a href="%s">%s</a>' % (rel(cur, target_of(s)), t(tt, i)) for s, tt in D.HOT)
+    return (
+        '<div class="searchblock"><form class="sform" id="sf" role="search"><label class="vh" for="q">%s</label>'
+        '<span class="sbar">%s<input id="q" type="search" placeholder="%s" autocomplete="off"></span>'
+        '<button class="vh" type="submit">%s</button></form>'
+        '<div class="hot"><span class="hot-l">%s</span><span class="hot-i">%s</span>'
+        '<a class="adv" href="%s">%s<i class="chev"></i></a></div></div>'
+        % (U("search_ph", i), search_icon(), U("search_ph", i), U("search_btn", i), U("hot", i), hot,
+           rel(cur, "misc/advsearch"), U("adv", i))
     )
 
-    def ul(items, cls=""):
-        return f'<ul class="{cls}">' + "".join(f"<li>{ph(x, i)}</li>" for x in items) + "</ul>"
 
-    tiles = "".join(
-        f'<li><a href="#" data-s><span class="ico" aria-hidden="true">{t(lab, i)[0]}</span>{t(lab, i)}</a></li>'
-        for _, lab, _ in RES
-    ) + f'<li><a href="#" data-s><span class="ico" aria-hidden="true">★</span>{t(("Government Websites & Officers", "정부 웹사이트 및 담당 부서", "政府網站及人員"), i)}</a></li>'
-
-    footer_html = "".join(f"<li>{ph(x, i)}</li>" for x in FOOTER)
-
-    title = f'{g(UI["site_short"], i)} — {g(UI["site_title"], i)}'
-    page = f"""<!doctype html>
-<html lang="{htmllang}">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{html.escape(title)}</title>
-<meta name="description" content="{u('site_title')}">
-<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="../assets/site.css">
-</head>
-<body class="lang-{code}" data-toast="{u('toast')}" data-nores="{u('search_none')}">
-<a class="skip" href="#main">{u('skip')}</a>
-
-<header class="top">
-  <div class="bar">
-    <div class="wrap bar-in">
-      <ul class="tools">
-        <li class="ts" aria-label="{u('text_size')}"><span>{u('text_size')}</span>
-          <button type="button" data-size="0" aria-label="A-">A</button>
-          <button type="button" data-size="1" aria-label="A" class="on">A</button>
-          <button type="button" data-size="2" aria-label="A+">A</button></li>
-        <li class="lg"><span>{u('languages')}</span><ul class="langs">{langs_html}</ul></li>
-      </ul>
-    </div>
-  </div>
-  <div class="wrap head">
-    <a class="brand" href="./" aria-label="{u('site_short')}">
-      <img src="../assets/flag.jpg" alt="" width="84" height="56">
-      <span class="brand-t"><strong>{u('site_short')}</strong><em>{u('region')}</em></span>
-    </a>
-    <form class="search" role="search" id="sf">
-      <label for="q" class="vh">{u('search')}</label>
-      <input id="q" type="search" placeholder="{u('search')}" autocomplete="off">
-      <button type="submit">{u('search_btn')}</button>
-    </form>
-    <button type="button" class="burger" aria-expanded="false" aria-controls="nav">{u('toggle_menu')}</button>
-  </div>
-  <nav class="nav" id="nav" aria-label="{u('menu')}">
-    <div class="wrap"><ul class="tabs">{tabs_html}</ul></div>
-    {panels_html}
-  </nav>
-</header>
-
-<section id="results" class="results" hidden aria-live="polite">
-  <div class="wrap"><h2>{u('search_res')}</h2><ul id="results-list"></ul></div>
-</section>
-
-<main id="main">
-  <h1 class="vh">{u('site_title')}</h1>
-
-  <section class="wrap hero" aria-label="{u('banner')}" aria-roledescription="carousel">
-    <div class="banner">
-      {''.join(slides_html)}
-      <button type="button" class="nav-b prev" aria-label="{u('prev')}">‹</button>
-      <button type="button" class="nav-b next" aria-label="{u('next')}">›</button>
-      <div class="dots">{dots}</div>
-    </div>
-    <aside class="quick">
-      <h3>{u('quick')}</h3>
-      {ul(QUICK)}
-    </aside>
-  </section>
-
-  <section class="wrap cols">
-    <div class="box">
-      <h3>{u('top_online')}</h3>
-      {ul(ONLINE)}
-      <p class="more"><a href="#" data-s>{u('more_online')}</a></p>
-    </div>
-    <div class="box">
-      <h3>{u('top_forms')}</h3>
-      {ul(FORMS)}
-      <p class="more"><a href="#" data-s>{u('more_forms')}</a></p>
-    </div>
-  </section>
-
-  <section class="wrap info">
-    <h3>{u('info')}</h3>
-    <ul class="tiles">{tiles}</ul>
-  </section>
-
-  <section class="wrap cols three">
-    <div class="box"><h3>{u('guide')}</h3>{ul(GUIDES)}<p class="more"><a href="#" data-s>{u('more_guide')}</a></p></div>
-    <div class="box"><h3>{u('features')}</h3>{ul(FEATURES, 'two')}</div>
-    <div class="box"><h3>{u('check')}</h3>{ul(CHECK)}</div>
-  </section>
-
-  <section class="wrap social">
-    <h3>{u('social')}</h3>
-    {ul(SOCIAL, 'inline')}
-  </section>
-</main>
-
-<footer class="foot">
-  <div class="wrap">
-    <p class="toplink"><a href="#top" id="totop">▲ {u('top')}</a></p>
-    <nav aria-label="{u('footer_menu')}"><ul class="fmenu">{footer_html}</ul></nav>
-    <p class="geo">{u('geo')}</p>
-    <p class="copy">{u('copyright')}</p>
-  </div>
-</footer>
-<div id="toast" role="status" aria-live="polite" hidden></div>
-<script src="../assets/site.js"></script>
-</body>
-</html>
-"""
-    return page
+def footer(i, cur):
+    links = "".join('<li><a href="%s">%s</a></li>' % (rel(cur, target_of(s)), t(tt, i)) for s, tt in D.FOOTER)
+    return (
+        '<footer class="foot"><div class="wrap">'
+        '<p class="totop"><a href="#top" id="totop">%s<i class="up"></i></a></p>'
+        '<div class="foot-row"><nav aria-label="Footer"><ul class="fmenu">%s</ul></nav>'
+        '<div class="foot-r"><p class="geo">%s</p><p class="copy">%s</p></div></div>'
+        '</div></footer>' % (U("top", i), links, U("geo", i), U("copyright", i))
+    )
 
 
+def head(i, hl, title, cur):
+    up = "../" * (depth(cur) + 1)
+    return (
+        '<!doctype html><html lang="%s"><head><meta charset="utf-8">'
+        '<meta name="viewport" content="width=device-width, initial-scale=1">'
+        '<title>%s</title><meta name="description" content="%s">'
+        '<link rel="icon" href="%sassets/favicon.svg" type="image/svg+xml">'
+        '<link rel="stylesheet" href="%sassets/site.css"></head>' % (hl, html.escape(title), U("site_full", i), up, up)
+    )
+
+
+def finish(htmltxt, cur):
+    up = "../" * (depth(cur) + 1)
+    return htmltxt.replace("%ASSETS%", up + "assets/").replace("%HOME%", rel(cur, ""))
+
+
+def tail(i, cur):
+    return (
+        '<div id="results" class="results" hidden><div class="wrap"><h2>%s</h2><ul id="rlist"></ul></div></div>'
+        '<script>window.BHG={nores:"%s"};</script><script src="%%ASSETS%%site.js"></script></body></html>'
+        % (U("res_title", i), g(D.UI["no_res"], i))
+    )
+
+
+# ----------------------------------------------------------------------------- home pages
+def hero_cards(i, cur):
+    out = []
+    for n, (title, color, kind) in enumerate(D.HERO_CARDS):
+        if kind == "flag":
+            img = '<div class="c-img flag" style="background-image:url(%ASSETS%flag.jpg)"></div>'
+        else:
+            dark = " dark" if kind == "dark" else ""
+            short = html.escape(g(D.HERO_SHORT[n] or title, i))
+            img = '<div class="c-img%s" style="background:%s"><span>%s</span></div>' % (dark, color, short)
+        out.append('<div class="card"><a href="%s">%s<h3>%s</h3></a></div>' % (rel(cur, "misc/hero%d" % n), img, t(title, i)))
+    return "".join(out)
+
+
+def tiles(i, cur, tab):
+    out = []
+    for cs, ct, _ in D.TREE[tab]:
+        out.append('<li><a href="%s">%s<span>%s</span></a></li>' % (rel(cur, "%s/%s" % (tab, cs)), svg(TILE_ICON.get(cs, "globe")), t(ct, i)))
+    out.append('<li><a href="%s">%s<span>%s</span></a></li>' % (rel(cur, "misc/govsites"), svg("globe"), t(D.GOVSITES, i)))
+    return "".join(out)
+
+
+def ul_links(items, i, cur):
+    return "".join('<li><a href="%s">%s</a></li>' % (rel(cur, target_of(s)), t(tt, i)) for s, tt in items)
+
+
+def home_page(i, hl, cur, info):
+    tab = info["tab"]
+    tab_html = []
+    for key, lab in D.TABS:
+        href = rel(cur, "" if key == "residents" else key)
+        on = ' class="on t-%s" aria-current="page"' % key if key == tab else ' class="t-%s"' % key
+        tab_html.append('<li><a href="%s"%s><span>%s</span><i class="tcaret"></i></a></li>' % (href, on, t(lab, i)))
+    quick = ul_links(D.QUICK, i, cur)
+    online = ul_links(D.ONLINE[tab], i, cur)
+    forms = ul_links(D.FORMS[tab], i, cur)
+    more = U("more", i)
+    guides = "".join(
+        '<li><a href="%s"><svg class="gi" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">%s</svg><span>%s</span><i class="gch"></i></a></li>'
+        % (rel(cur, target_of(s)), GUIDE_ICON[ic], t(tt, i)) for s, tt, ic in D.GUIDES)
+    feats = "".join(
+        '<li><a href="%s"><span class="fc"><svg viewBox="0 0 48 48" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">%s</svg></span><span class="fl">%s</span></a></li>'
+        % (rel(cur, target_of(s)), FEAT_ICON[ic], t(tt, i)) for s, tt, ic in D.FEATURES)
+    checks = "".join(
+        '<li class="card"><a href="%s"><div class="c-img" style="background:%s"></div><h3>%s</h3></a></li>'
+        % (rel(cur, target_of(s)), col, t(tt, i)) for s, tt, col in D.CHECK)
+    social = ul_links(D.SOCIAL, i, cur)
+    page = head(i, hl, "%s — %s" % (g(D.UI["site"], i), g(D.UI["site_full"], i)), cur)
+    page += '<body class="home t-%s lang-%s"><a class="skip" href="#main" id="top">%s</a>' % (tab, LANGS[i][0], U("skip", i))
+    page += top_bar(i, cur)
+    page += '<header class="hhead"><div class="wrap hhead-in">%s%s</div>' % (logo_html(i, True), search_block(i, cur))
+    page += '<nav class="tabs" aria-label="%s"><div class="wrap"><ul>%s</ul></div></nav></header>' % (U("main_menu", i), "".join(tab_html))
+    desk_a = ('<svg class="deco" viewBox="0 0 100 100" fill="none" stroke="#fff" stroke-width="2.5" aria-hidden="true">'
+              '<rect x="8" y="10" width="84" height="56" rx="4"/><path d="M30 86h40M50 66v20M18 22h20M18 34h12M44 22h12M44 34h12M66 22h16"/></svg>')
+    desk_b = ('<svg class="deco" viewBox="0 0 100 100" fill="none" stroke="#fff" stroke-width="2.5" aria-hidden="true">'
+              '<rect x="12" y="14" width="56" height="76" rx="5"/><path d="M26 34h30M26 48h30M26 62h18M72 20l14 6-14 58-6-2z"/></svg>')
+    page += (
+        '<main id="main"><h1 class="vh">%s</h1>'
+        '<section class="hero"><div class="hero-city"></div>'
+        '<div class="hero-in"><div class="track" id="cards">%s</div>'
+        '<div class="pill" id="cdots"></div></div></section>'
+        '<section class="wrap quick"><h2>%s</h2><ul>%s</ul></section>'
+        '<section class="wrap boxes"><div class="rbox"><h2>%s</h2><ul>%s<li class="more"><a href="%s">%s&nbsp;&nbsp;&gt;</a></li></ul>%s</div>'
+        '<div class="rbox"><h2>%s</h2><ul>%s<li class="more"><a href="%s">%s&nbsp;&nbsp;&gt;</a></li></ul>%s</div></section>'
+        '<section class="wrap info"><h2>%s</h2><ul class="tiles">%s</ul></section>'
+        '<section class="guide"><div class="wrap"><h2>%s</h2><ul class="gcards">%s</ul><p class="gmore"><a class="pillbtn" href="%s">%s</a></p></div></section>'
+        '<section class="feat"><div class="wrap"><h2>%s</h2><div class="ftrack-w"><ul class="ftrack" id="ftrack">%s</ul>'
+        '<button type="button" class="fnext" id="fnext" aria-label="%s"><i></i></button></div><div class="pill small" id="fdots"></div></div></section>'
+        '<section class="check"><div class="wrap"><h2>%s</h2><ul class="ccards">%s</ul></div></section>'
+        '<section class="social"><div class="wrap social-in"><h2>%s</h2><ul>%s</ul></div></section>'
+        '</main>'
+        % (g(D.UI["site_full"], i), hero_cards(i, cur),
+           U("quick", i), quick,
+           U("top_online", i), online, rel(cur, "%s/onlineservices" % tab), more, desk_a,
+           U("top_forms", i), forms, rel(cur, "%s/forms" % tab), more, desk_b,
+           U("info", i), tiles(i, cur, tab),
+           U("guide", i), guides, rel(cur, "misc/guides"), more,
+           U("features", i), feats, U("next", i),
+           U("check", i), checks, U("social", i), social)
+    )
+    page += footer(i, cur) + mega_panels(i, cur) + tail(i, cur)
+    return finish(page, cur)
+
+
+# ----------------------------------------------------------------------------- inner pages
+def find_cat(tab, cat):
+    return [c for c in D.TREE[tab] if c[0] == cat][0]
+
+
+def breadcrumb(i, cur, info):
+    parts = [(rel(cur, ""), U("home", i))]
+    tab = info.get("tab", "residents")
+    tl = dict(D.TABS)[tab]
+    parts.append((rel(cur, "" if tab == "residents" else tab), t(tl, i)))
+    kind = info["kind"]
+    if kind in ("sub", "leaf", "service", "leaf2"):   # ancestors only; the page itself is the last crumb
+        cp = "%s/%s" % (tab, info["cat"])
+        c = find_cat(tab, info["cat"])
+        parts.append((rel(cur, cp), t(c[1], i)))
+        if kind in ("leaf", "service", "leaf2"):
+            sp = "%s/%s" % (cp, info["sub"])
+            st = [s for s in c[2] if s[0] == info["sub"]][0][1]
+            parts.append((rel(cur, sp), t(st, i)))
+            if kind in ("service", "leaf2"):
+                lp = "%s/%s" % (sp, info["leaf"])
+                lt = dict(D.LEAVES[(info["cat"], info["sub"])])[info["leaf"]]
+                parts.append((rel(cur, lp), t(lt, i)))
+    lis = "".join('<li><a href="%s">%s</a></li>' % h for h in parts)
+    return '<nav class="bc" aria-label="Breadcrumb"><div class="wrap"><ol>%s<li class="cur" aria-current="page">%s</li></ol></div></nav>' % (lis, t(info["title"], i))
+
+
+def sidebar(i, cur, info):
+    tab = info.get("tab", "residents")
+    cat = info.get("cat")
+    if not cat:
+        return ""
+    out = []
+    for ss, st in find_cat(tab, cat)[2]:
+        on = ' class="on"' if info.get("sub") == ss else ""
+        out.append('<li%s><a href="%s">%s</a></li>' % (on, rel(cur, "%s/%s/%s" % (tab, cat, ss)), t(st, i)))
+    return '<aside class="side"><ul>%s</ul></aside>' % "".join(out)
+
+
+def poll(i):
+    return (
+        '<div class="below"><div class="helpful"><strong>%s</strong>'
+        '<label><input type="radio" name="h"><span class="face g"></span></label>'
+        '<label><input type="radio" name="h"><span class="face y"></span></label>'
+        '<label><input type="radio" name="h"><span class="face r"></span></label></div>'
+        '<p class="review">%s%s</p></div>' % (U("helpful", i), U("review", i), U("review_val", i))
+    )
+
+
+def boxes(items, i, cur, base):
+    lis = "".join('<li><a href="%s"><span>%s</span><i class="plus"></i></a></li>' % (rel(cur, "%s/%s" % (base, s)), t(tt, i)) for s, tt in items)
+    return '<ul class="topics">%s</ul>' % lis
+
+
+def render_blocks(blocks, i, cur):
+    out = []
+    for b in blocks:
+        k = b[0]
+        if k == "p":
+            out.append("<p>%s</p>" % g(b[1], i))
+        elif k == "plain":
+            out.append('<p class="plain">%s</p>' % g(b[1], i))
+        elif k == "h2":
+            out.append("<h2>%s</h2>" % html.escape(g(b[1], i)))
+        elif k == "h3":
+            out.append("<h3>%s</h3>" % html.escape(g(b[1], i)))
+        elif k in ("ol", "ul"):
+            out.append("<%s>%s</%s>" % (k, "".join("<li>%s</li>" % html.escape(g(x, i)) for x in b[1]), k))
+        elif k == "btn":
+            out.append('<p class="btnp"><a class="gbtn" href="%s"><span>%s</span><i class="gch2"></i></a></p>' % (rel(cur, "misc/" + b[2]), html.escape(g(b[1], i))))
+        elif k == "link":
+            out.append('<p class="lnk"><a href="%s">%s</a></p>' % (rel(cur, "misc/" + b[2]), html.escape(g(b[1], i))))
+    return "".join(out)
+
+
+def inner_header(i, cur, info):
+    tab = info.get("tab", "residents")
+    nav = []
+    for key, lab in D.TABS:
+        href = rel(cur, "" if key == "residents" else key)
+        cls = ' class="nt on"' if key == tab else ' class="nt"'
+        nav.append('<li><a href="%s"%s data-mm="mm-%s">%s</a></li>' % (href, cls, key, t(lab, i)))
+    return (
+        '<header class="ihead"><div class="wrap ihead-in">%s<nav class="inav" aria-label="%s"><ul>%s'
+        '<li><button type="button" class="isearch" id="isearch" aria-label="%s">%s</button></li></ul></nav>'
+        '<button type="button" class="burger" aria-label="%s"><span></span></button></div>'
+        '<div class="wrap isearch-w" id="isearch-w" hidden>%s</div></header>'
+        % (logo_html(i, False), U("main_menu", i), "".join(nav), U("search_ph", i), search_icon(), U("toggle", i), search_block(i, cur))
+    )
+
+
+def inner_page(i, hl, cur, info):
+    kind = info["kind"]
+    tab = info.get("tab", "residents")
+    title = info["title"]
+    main = ""
+    if kind == "cat":
+        subs = find_cat(tab, info["cat"])[2]
+        main += boxes(subs, i, cur, "%s/%s" % (tab, info["cat"])) + poll(i)
+    elif kind == "sub":
+        leaves = D.LEAVES.get((info["cat"], info["sub"]), []) if tab == "residents" else []
+        main += (boxes(leaves, i, cur, cur) if leaves else '<div class="box"><p>%s</p></div>' % U("stub", i)) + poll(i)
+    elif kind == "leaf":
+        subs = D.SUBLEAVES.get((info["cat"], info["sub"], info["leaf"]), [])
+        main += (boxes(subs, i, cur, cur) if subs else '<div class="box"><p>%s</p></div>' % U("stub", i)) + poll(i)
+    elif kind == "service":
+        rel_links = "".join('<li><a href="%s">%s</a></li>' % (rel(cur, "misc/travelinfo"), t(x, i)) for x in D.PASSPORT_RELATED)
+        online = ul_links(D.ONLINE["residents"], i, cur)
+        main += '<div class="box article">%s</div>' % render_blocks(D.PASSPORT_BLOCKS, i, cur)
+        main += poll(i)
+        main += ('<div class="relwrap"><section class="rel"><h2>%s</h2><h3>%s</h3><ul>%s</ul></section>'
+                 '<section class="rel"><h3>%s</h3><ul>%s</ul><p class="relmore"><a href="%s">%s&nbsp;&gt;</a></p></section></div>'
+                 % (U("related", i), g(("Related Links", "관련 링크", "相關連結"), i), rel_links,
+                    g(("Top Online Services", "인기 온라인 서비스", "常用網上服務"), i), online,
+                    rel(cur, "residents/onlineservices"), U("more", i)))
+    elif kind == "leaf2":
+        main += '<div class="box"><p>%s</p></div>' % U("stub", i) + poll(i)
+    elif kind == "list":
+        src = D.ONLINE if info["what"] == "online" else D.FORMS
+        lis = "".join('<li><a href="%s">%s</a></li>' % (rel(cur, target_of(s)), t(tt, i)) for s, tt in src[tab])
+        main += '<div class="box"><ul class="plainlist">%s</ul></div>' % lis + poll(i)
+    else:  # misc
+        main += '<div class="box"><p>%s</p></div>' % U("stub_nomenu", i) + poll(i)
+
+    side = sidebar(i, cur, info)
+    page = head(i, hl, "%s — %s" % (g(title, i), g(D.UI["site"], i)), cur)
+    page += '<body class="inner t-%s lang-%s"><a class="skip" href="#main" id="top">%s</a>' % (tab, LANGS[i][0], U("skip", i))
+    page += top_bar(i, cur) + inner_header(i, cur, info) + mega_panels(i, cur)
+    page += breadcrumb(i, cur, info)
+    page += '<main id="main" class="wrap %s">%s<div class="content"><h1>%s%s</h1>%s</div></main>' % (
+        "layout" if side else "layout noside", side, html.escape(g(title, i)), svg("globepin", "h1ic"), main)
+    page += footer(i, cur) + tail(i, cur)
+    return finish(page, cur)
+
+
+# ----------------------------------------------------------------------------- skyline art
+def skyline_svg():
+    """Original illustration: stylised apartment blocks by the water."""
+    import random
+    rnd = random.Random(7)
+    parts = ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 260" preserveAspectRatio="xMidYMax slice">',
+             '<defs><pattern id="w" width="14" height="16" patternUnits="userSpaceOnUse">'
+             '<rect x="3" y="4" width="7" height="8" fill="#ffffff" opacity=".38"/></pattern>'
+             '<linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6fb3d6"/><stop offset="1" stop-color="#2f78a6"/></linearGradient></defs>']
+    parts.append('<path d="M0 150 C200 110 360 140 560 120 S980 90 1200 125 S1500 110 1600 130 V260 H0z" fill="#8fb59a" opacity=".75"/>')
+    x = -20
+    cols = ["#6f8fb5", "#8aa6c6", "#a3bbd6", "#5d7ea8", "#7d9cbf"]
+    while x < 1620:
+        w = rnd.choice([54, 64, 76, 90, 60])
+        h = rnd.randint(70, 190)
+        c = rnd.choice(cols)
+        y = 214 - h
+        parts.append('<rect x="%d" y="%d" width="%d" height="%d" fill="%s"/>' % (x, y, w, h, c))
+        parts.append('<rect x="%d" y="%d" width="%d" height="%d" fill="url(#w)"/>' % (x, y, w, h))
+        if rnd.random() < .4:
+            parts.append('<rect x="%d" y="%d" width="%d" height="8" fill="%s"/>' % (x + 6, y - 8, w - 12, c))
+        x += w + rnd.choice([-6, 2, 6, 12])
+    parts.append('<rect y="214" width="1600" height="46" fill="url(#sea)"/></svg>')
+    return "".join(parts)
+
+
+# ----------------------------------------------------------------------------- main
 ROOT_INDEX = """<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>GovBHG — Baekhyeon Hwarang SAR Government</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GovBHG - Baekhyeon Hwarang SAR Government</title>
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <noscript><meta http-equiv="refresh" content="0; url=en/"></noscript>
 <script>
@@ -446,25 +537,34 @@ ROOT_INDEX = """<!doctype html>
   else if (l.indexOf("zh") === 0) d = /zh-(cn|sg|hans)/.test(l) ? "zh-hans/" : "zh-hant/";
   location.replace(d);
 })();
-</script>
-</head>
+</script></head>
 <body style="font-family:sans-serif;padding:2em">
-<p><a href="en/">English</a> · <a href="ko/">한국어</a> · <a href="zh-hant/">繁體中文</a> · <a href="zh-hans/">简体中文</a></p>
-</body>
-</html>
+<p><a href="en/">English</a> &middot; <a href="ko/">한국어</a> &middot; <a href="zh-hant/">繁體中文</a> &middot; <a href="zh-hans/">简体中文</a></p>
+</body></html>
 """
 
 
 def main():
-    for code, folder, hl, _ in LANGS:
-        d = os.path.join(ROOT, folder)
-        os.makedirs(d, exist_ok=True)
-        with open(os.path.join(d, "index.html"), "w", encoding="utf-8") as f:
-            f.write(build_page(code, folder, hl, IDX[code]))
+    build_registry()
+    for _code, folder, _hl, _label in LANGS:
+        shutil.rmtree(os.path.join(ROOT, folder), ignore_errors=True)
+    shutil.rmtree(os.path.join(ROOT, "zh"), ignore_errors=True)  # legacy folder
+    count = 0
+    for code, folder, hl, _label in LANGS:
+        i = IDX[code]
+        for path, info in PAGES.items():
+            out_dir = os.path.join(ROOT, folder, path)
+            os.makedirs(out_dir, exist_ok=True)
+            txt = home_page(i, hl, path, info) if info["kind"] == "home" else inner_page(i, hl, path, info)
+            with open(os.path.join(out_dir, "index.html"), "w", encoding="utf-8") as f:
+                f.write(txt)
+            count += 1
     with open(os.path.join(ROOT, "index.html"), "w", encoding="utf-8") as f:
         f.write(ROOT_INDEX)
+    with open(os.path.join(ROOT, "assets", "skyline.svg"), "w", encoding="utf-8") as f:
+        f.write(skyline_svg())
     open(os.path.join(ROOT, ".nojekyll"), "w").close()
-    print("built:", ", ".join(f[1] for f in LANGS))
+    print("built %d pages (%d per language)" % (count, len(PAGES)))
 
 
 if __name__ == "__main__":
