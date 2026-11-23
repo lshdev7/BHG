@@ -586,13 +586,9 @@ LEAVES = {
     ("immigration", "traveldoc"): [
         ("passport", ("Baekhyeon Hwarang SAR Passport", "백현화랑 특별행정구 여권", "柏峴화랑特別行政區護照")),
         ("appstatus", ("Online Travel Document Application Status Enquiry", "여행증명서 신청 현황 온라인 조회", "網上查詢旅行證件申請進度")),
-        ("photo", _I.PHOTO_TITLE), ("faq", _I.FAQ_TITLE), ("fees", _I.FEES_TITLE), ("kiosk", _I.KIOSK_TITLE),
-        ("branches", _I.BRANCH_TITLE), ("hq", _I.HQ_TITLE),
-        ("aboutpassport", _I.ABOUT_PASSPORT_TITLE), ("aboutdocid", _I.ABOUT_DOCID_TITLE),
-        ("aboutreentry", _I.ABOUT_REENTRY_TITLE), ("aboutseaman", _I.ABOUT_SEAMAN_TITLE), ("lost", _I.LOST_TITLE),
+        ("lost", _I.LOST_TITLE),
     ],
     ("immigration", "idcard"): [
-        ("smartid", _I.SMARTID_TITLE),
         ("permid", ("Baekhyeon Hwarang Identity Cards", "백현화랑 신분증", "柏峴화랑身份證")),
         ("abode", ("Right of Abode", "거주권", "居留權")),
         ("certentitle", ("Application for Certificate of Entitlement", "자격증명서 신청", "申請登記證")),

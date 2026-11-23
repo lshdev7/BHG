@@ -71,41 +71,51 @@ ARTICLES = {            # path -> content blocks of an article-style service pag
     TD + "/appstatus": T.STATUS_BLOCKS,
 }
 ETX = "residents/taxes/etax"
+IMMD_BASE = "https://lshdev7.github.io/bhg_Immigration_Department/"
+IMMD_TD = "immd:services/travel-documents"
+TD_IMMD = {   # GovHK sends these to the Immigration Department website
+    "faq": IMMD_TD + "/faq", "fees": IMMD_TD + "/fees", "photo": IMMD_TD + "/photo", "kiosk": IMMD_TD + "/kiosk",
+    "aboutpassport": IMMD_TD + "/apply-passport", "aboutdocid": IMMD_TD + "/docid", "aboutreentry": IMMD_TD + "/reentry",
+    "aboutseaman": IMMD_TD + "/seaman", "branches": "immd:contact/branch-offices", "hq": "immd:contact/hq-offices",
+}
+APPS = {   # GovHK-style hand-off pages that forward to the Immigration Department e-services
+    "apps/immdapplypassport": ("immd:eservices/passport-application", ("OWP form filling", "온라인 신청서 작성", "網上表格填寫")),
+    "apps/immdtd_booking": ("immd:eservices/travel-document-booking", ("Travel document appointment booking", "여행증명서 신청 예약", "預約申請旅行證件")),
+}
+
+
+def link(cur, target, i):
+    """Relative link inside GovBHG, or absolute link to the Immigration Department site for "immd:" targets."""
+    if target.startswith("immd:"):
+        return IMMD_BASE + LANGS[i][1] + "/" + target[5:] + "/"
+    return rel(cur, target)
 PAYFAQ_PATH = "about/helpdesk/faq/payment"
 ARTICLES.update({
-    TD + "/photo": I.PHOTO, TD + "/faq": I.FAQ, TD + "/fees": I.FEES, TD + "/kiosk": I.KIOSK,
-    TD + "/branches": I.BRANCH, TD + "/hq": I.HQ, TD + "/aboutpassport": I.ABOUT_PASSPORT, TD + "/aboutdocid": I.ABOUT_DOCID,
-    TD + "/aboutreentry": I.ABOUT_REENTRY, TD + "/aboutseaman": I.ABOUT_SEAMAN, TD + "/lost": I.LOST,
-    "residents/immigration/idcard/smartid": I.SMARTID,
+    TD + "/lost": I.LOST,
     "residents/immigration/nonpermanent/appstatus": I.NONPERM,
     ETX: I.ETAX, ETX + "/taxcalc": I.TAXCALC_INFO, ETX + "/allowance": I.ALLOWANCE,
     PAYFAQ_PATH: I.PAYFAQ,
 })
 ESERVICES = {   # path -> (config key, title)
-    "eservices/passport-apply": ("passport", E.PASSPORT["title"]),
-    "eservices/td-booking": ("td-booking", E.booking("td")["title"]),
-    "eservices/idcard-booking": ("id-booking", E.booking("id")["title"]),
-    "eservices/td-status": ("td-status", E.TD_STATUS["title"]),
-    "eservices/app-status": ("app-status", E.VISA_STATUS["title"]),
     "eservices/etax-login": ("etax-login", ("eTAX – Individual Tax Portal (ITP) Login", "eTAX – 개인 납세 포털(ITP) 로그인", "稅務易 – 個人稅務入門網站（ITP）登入")),
     "eservices/etax-register": ("etax-register", E.ETAX_REGISTER["title"]),
     "eservices/tax-payment": ("tax-payment", E.TAX_PAYMENT["title"]),
     "eservices/tax-calc": ("tax-calc", E.TAXCALC["title"]),
 }
 BLOCK_TARGET = {
-    "apply": "eservices/passport-apply", "appointment": "eservices/td-booking", "tdstatus": "eservices/td-status",
-    "appstatussvc": "eservices/app-status", "idbook": "eservices/idcard-booking",
-    "photo": TD + "/photo", "payfaq": PAYFAQ_PATH, "passfaq": TD + "/faq", "faq": TD + "/faq", "fees": TD + "/fees",
+    "apply": "apps/immdapplypassport", "appointment": "apps/immdtd_booking", "tdstatus": "immd:eservices/travel-document-status",
+    "appstatussvc": "immd:eservices/application-status", "idbook": "immd:eservices/idcard-booking",
+    "photo": TD_IMMD["photo"], "payfaq": PAYFAQ_PATH, "passfaq": TD_IMMD["faq"], "faq": TD_IMMD["faq"], "fees": TD_IMMD["fees"],
     "etaxlogin": "eservices/etax-login", "etaxreg": "eservices/etax-register", "taxcalc": ETX + "/taxcalc",
     "allowance": ETX + "/allowance", "taxpay": "eservices/tax-payment",
 }
 LINK_TARGETS = {   # by English text of a "links" item
-    "More information on Baekhyeon Hwarang SAR Passport": TD + "/aboutpassport",
-    "More information on Baekhyeon Hwarang SAR Re-entry Permit": TD + "/aboutreentry",
-    "More information on Baekhyeon Hwarang SAR Document of Identity for Visa Purposes": TD + "/aboutdocid",
-    "More information on Baekhyeon Hwarang SAR Seaman's Identity Book": TD + "/aboutseaman",
-    "Addresses and working hours of Immigration Offices at Immigration Headquarters": TD + "/hq",
-    "Addresses and working hours of Immigration Offices at Immigration Branch Offices": TD + "/branches",
+    "More information on Baekhyeon Hwarang SAR Passport": TD_IMMD["aboutpassport"],
+    "More information on Baekhyeon Hwarang SAR Re-entry Permit": TD_IMMD["aboutreentry"],
+    "More information on Baekhyeon Hwarang SAR Document of Identity for Visa Purposes": TD_IMMD["aboutdocid"],
+    "More information on Baekhyeon Hwarang SAR Seaman's Identity Book": TD_IMMD["aboutseaman"],
+    "Addresses and working hours of Immigration Offices at Immigration Headquarters": TD_IMMD["hq"],
+    "Addresses and working hours of Immigration Offices at Immigration Branch Offices": TD_IMMD["branches"],
 }
 BOOK_PATH = TD + "/passport/book"
 GUIDE_PATH = "guidebook/passport"
@@ -140,6 +150,8 @@ def build_registry():
         reg("%s/onlineservices" % tab, kind="list", tab=tab, title=D.ONLINE_PAGE, what="online")
         reg("%s/forms" % tab, kind="list", tab=tab, title=D.FORMS_PAGE, what="forms")
     reg(PAYFAQ_PATH, kind="service", tab="residents", title=I.PAYFAQ_TITLE)
+    for path, (target, title) in APPS.items():
+        reg(path, kind="apps", tab="residents", title=title, target=target)
     for path, (key, title) in ESERVICES.items():
         reg(path, kind="eservice", tab="residents", title=title, esvc=key)
     for slug, title in (("itpforgot", ("Forgot ITP Password", "ITP 비밀번호 찾기", "忘記ITP密碼")), ("itpfile", ("File Tax Return", "세금 신고", "報稅"))):
@@ -185,7 +197,7 @@ def target_of(slug):
     if slug == "passport":
         return "residents/immigration/traveldoc/passport/apply"
     if slug == "idcard":
-        return "eservices/idcard-booking"
+        return "immd:services/identity-cards"
     if slug == "etax":
         return ETX
     if slug == "etaxlogin":
@@ -300,7 +312,7 @@ def mega_panels(i, cur):
 
 
 def search_block(i, cur):
-    hot = "".join('<a href="%s">%s</a>' % (rel(cur, target_of(s)), t(tt, i)) for s, tt in D.HOT)
+    hot = "".join('<a href="%s">%s</a>' % (link(cur, target_of(s), i), t(tt, i)) for s, tt in D.HOT)
     return (
         '<div class="searchblock"><form class="sform" id="sf" role="search"><label class="vh" for="q">%s</label>'
         '<span class="sbar">%s<input id="q" type="search" placeholder="%s" autocomplete="off"></span>'
@@ -313,7 +325,7 @@ def search_block(i, cur):
 
 
 def footer(i, cur):
-    links = "".join('<li><a href="%s">%s</a></li>' % (rel(cur, target_of(s)), t(tt, i)) for s, tt in D.FOOTER)
+    links = "".join('<li><a href="%s">%s</a></li>' % (link(cur, target_of(s), i), t(tt, i)) for s, tt in D.FOOTER)
     return (
         '<footer class="foot"><div class="wrap">'
         '<p class="totop"><a href="#top" id="totop">%s<i class="up"></i></a></p>'
@@ -370,7 +382,7 @@ def tiles(i, cur, tab):
 
 
 def ul_links(items, i, cur):
-    return "".join('<li><a href="%s">%s</a></li>' % (rel(cur, target_of(s)), t(tt, i)) for s, tt in items)
+    return "".join('<li><a href="%s">%s</a></li>' % (link(cur, target_of(s), i), t(tt, i)) for s, tt in items)
 
 
 def home_page(i, hl, cur, info):
@@ -389,10 +401,10 @@ def home_page(i, hl, cur, info):
         % (rel(cur, GUIDE_PATH if s == "passport" else target_of(s)), GUIDE_ICON[ic], t(tt, i)) for s, tt, ic in D.GUIDES)
     feats = "".join(
         '<li><a href="%s"><span class="fc"><svg viewBox="0 0 48 48" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">%s</svg></span><span class="fl">%s</span></a></li>'
-        % (rel(cur, target_of(s)), FEAT_ICON[ic], t(tt, i)) for s, tt, ic in D.FEATURES)
+        % (link(cur, target_of(s), i), FEAT_ICON[ic], t(tt, i)) for s, tt, ic in D.FEATURES)
     checks = "".join(
         '<li class="card"><a href="%s"><div class="c-img" style="background:%s"></div><h3>%s</h3></a></li>'
-        % (rel(cur, target_of(s)), col, t(tt, i)) for s, tt, col in D.CHECK)
+        % (link(cur, target_of(s), i), col, t(tt, i)) for s, tt, col in D.CHECK)
     social = ul_links(D.SOCIAL, i, cur)
     page = head(i, hl, "%s — %s" % (g(D.UI["site"], i), g(D.UI["site_full"], i)), cur)
     page += '<body class="home t-%s lang-%s"><a class="skip" href="#main" id="top">%s</a>' % (tab, LANGS[i][0], U("skip", i))
@@ -502,8 +514,8 @@ def share_html(i):
     return '<div class="share"><span>%s</span>%s</div>' % (t(T.GB_SHARE, i), "".join(ic))
 
 
-def block_href(slug, cur):
-    return rel(cur, BLOCK_TARGET.get(slug, "misc/" + slug))
+def block_href(slug, cur, i=0):
+    return link(cur, BLOCK_TARGET.get(slug, "misc/" + slug), i)
 
 
 def render_blocks(blocks, i, cur):
@@ -527,15 +539,15 @@ def render_blocks(blocks, i, cur):
         elif k == "olr":
             out.append('<ol class="roman">%s</ol>' % "".join("<li>%s</li>" % html.escape(g(x, i)) for x in b[1]))
         elif k == "btn":
-            out.append('<p class="btnp"><a class="gbtn" href="%s"><span>%s</span><i class="gch2"></i></a></p>' % (block_href(b[2], cur), html.escape(g(b[1], i))))
+            out.append('<p class="btnp"><a class="gbtn" href="%s"><span>%s</span><i class="gch2"></i></a></p>' % (block_href(b[2], cur, i), html.escape(g(b[1], i))))
         elif k == "link":
-            out.append('<p class="lnk"><a href="%s">%s</a></p>' % (block_href(b[2], cur), html.escape(g(b[1], i))))
+            out.append('<p class="lnk"><a href="%s">%s</a></p>' % (block_href(b[2], cur, i), html.escape(g(b[1], i))))
         elif k == "ulink":
             out.append('<ul class="bl"><li><a href="%s">%s</a></li></ul>' % (b[2], html.escape(g(b[1], i))))
         elif k == "links":
-            out.append('<ul class="bl">%s</ul>' % "".join('<li><a href="%s">%s</a></li>' % (rel(cur, LINK_TARGETS.get(x[0], TD + "/faq")), html.escape(g(x, i))) for x in b[1]))
+            out.append('<ul class="bl">%s</ul>' % "".join('<li><a href="%s">%s</a></li>' % (link(cur, LINK_TARGETS.get(x[0], TD_IMMD["faq"]), i), html.escape(g(x, i))) for x in b[1]))
         elif k == "links2":
-            out.append('<ul class="bl">%s</ul>' % "".join('<li><a href="%s">%s</a></li>' % (block_href(slug, cur), html.escape(g(x, i))) for x, slug in b[1]))
+            out.append('<ul class="bl">%s</ul>' % "".join('<li><a href="%s">%s</a></li>' % (block_href(slug, cur, i), html.escape(g(x, i))) for x, slug in b[1]))
         elif k == "calclinks":
             out.append('<ul class="bl yrs">%s</ul>' % "".join('<li><a href="%s">%s</a></li>' % (rel(cur, "eservices/tax-calc"), y) for y in b[1]))
         elif k == "table":
@@ -585,7 +597,11 @@ def traveldoc_main(i, cur):
     for n, (gt, rows) in enumerate(T.TD_GROUPS):
         lis = []
         for key, title in rows:
-            href = rel(cur, key[2:]) if key.startswith("P:") else rel(cur, "misc/" + key)
+            last = key.rsplit("/", 1)[-1]
+            if key.startswith("P:") and key[2:] not in PAGES and last in TD_IMMD:
+                href = link(cur, TD_IMMD[last], i)
+            else:
+                href = rel(cur, key[2:]) if key.startswith("P:") else rel(cur, "misc/" + key)
             lis.append('<li><a href="%s">%s</a></li>' % (href, t(title, i)))
         blurb = ""
         if gt[0] in T.TD_BLURB:
@@ -651,7 +667,7 @@ def inner_page(i, hl, cur, info):
         extra = '<script src="%ASSETS%svc.js"></script>'
     elif kind == "list":
         src = D.ONLINE if info["what"] == "online" else D.FORMS
-        lis = "".join('<li><a href="%s">%s</a></li>' % (rel(cur, target_of(s)), t(tt, i)) for s, tt in src[tab])
+        lis = "".join('<li><a href="%s">%s</a></li>' % (link(cur, target_of(s), i), t(tt, i)) for s, tt in src[tab])
         main += '<div class="box"><ul class="plainlist">%s</ul></div>' % lis + poll(i)
     else:  # misc
         main += '<div class="box"><p>%s</p></div>' % U("stub_nomenu", i) + poll(i)
@@ -666,6 +682,19 @@ def inner_page(i, hl, cur, info):
         "layout" if side else "layout noside", side, big, html.escape(g(h1, i)), svg("globepin", "h1ic"), main)
     page += footer(i, cur) + tail(i, cur, extra)
     return finish(page, cur)
+
+
+def apps_page(i, hl, cur, info):
+    url = link(cur, info["target"], i)
+    msg = g(("You are now being redirected to the e-service of the Immigration Department. If the page does not open in 3 seconds, please select the link below.",
+             "출입경사무처 전자서비스로 이동하고 있습니다. 3초 안에 열리지 않으면 아래 링크를 누르세요.",
+             "現正轉往入境事務處的電子服務。如頁面在3秒內未能開啟，請按下面的連結。"), i)
+    return ('<!doctype html><html lang="%s"><head><meta charset="utf-8"><meta name="robots" content="noindex,follow">'
+            '<meta http-equiv="Refresh" content="3;URL=%s"><meta name="viewport" content="width=device-width, initial-scale=1">'
+            '<title>GovBHG: %s</title><link rel="stylesheet" href="%s"></head><body class="inner apps">'
+            '<main class="wrap" style="padding:60px 0"><h1 style="font-size:22px;margin-bottom:14px">%s</h1><p style="margin-bottom:14px">%s</p><p><a style="color:#951717;text-decoration:underline" href="%s">%s</a></p></main></body></html>'
+            % (hl, html.escape(url), html.escape(g(info["title"], i)), "../" * (depth(cur) + 1) + "assets/site.css",
+               html.escape(g(info["title"], i)), html.escape(msg), html.escape(url), html.escape(url)))
 
 
 # ----------------------------------------------------------------------------- guidebook page
@@ -707,7 +736,7 @@ def gb_tab(i, cur, tab, active):
     items.append('<li><span class="gb">%s</span><span class="gd">%s</span></li>' % (
         t(("Supporting documents", "증빙서류", "證明文件"), i), "".join(docs)))
     out.append('<ul class="gl1">%s</ul>' % "".join(items))
-    out.append('<p class="gm"><a href="%s">%s</a></p>' % (rel(cur, TD + "/aboutpassport"), t(T.GB_MORE["docs"], i)))
+    out.append('<p class="gm"><a href="%s">%s</a></p>' % (link(cur, TD_IMMD["aboutpassport"], i), t(T.GB_MORE["docs"], i)))
     # means table
     out.append(sec_h2("means", i))
     head = '<tr><th class="clk"><span data-clock></span></th>%s</tr>' % "".join('<th class="c%d">%s</th>' % (n, t(c, i)) for n, c in enumerate(cols))
@@ -717,11 +746,11 @@ def gb_tab(i, cur, tab, active):
     out.append('<div class="tblw"><table class="pay"><thead>%s</thead><tbody>%s</tbody></table></div>' % (head, "".join(body)))
     out.append('<p class="fn">%s</p><p class="fn"><a href="%s">%s</a></p>' % (t(note, i), rel(cur, PAYFAQ_PATH), t(T.GB_MORE["faqpay"], i)))
     out.append('<p class="fn addr">%s<br>%s</p>' % (t(T.GB_ADDR[0], i), "<br>".join(t(x, i) for x in T.GB_ADDR[1])))
-    out.append('<p class="gm"><a href="%s">%s</a></p>' % (rel(cur, TD + "/fees"), t(T.GB_MORE["means"], i)))
+    out.append('<p class="gm"><a href="%s">%s</a></p>' % (link(cur, TD_IMMD["fees"], i), t(T.GB_MORE["means"], i)))
     # collection
     out.append(sec_h2("collect", i))
     out.append('<ul class="gl1">%s</ul>' % "".join('<li><span class="gb">%s</span><span class="gd">%s</span></li>' % (t(h, i), t(b, i)) for h, b in tab["collect"]))
-    out.append('<p class="gm"><a href="%s">%s</a></p>' % (rel(cur, TD + "/kiosk"), t(T.GB_MORE["collect"], i)))
+    out.append('<p class="gm"><a href="%s">%s</a></p>' % (link(cur, TD_IMMD["kiosk"], i), t(T.GB_MORE["collect"], i)))
     # processing
     out.append(sec_h2("proc", i))
     for txt, plain in tab["proc"]:
@@ -730,7 +759,7 @@ def gb_tab(i, cur, tab, active):
         else:
             first, rest = g(txt, i).split(":" if i != 2 and i != 3 else "：", 1)
             out.append('<p class="pr"><span class="note">%s%s</span>%s</p>' % (html.escape(first), ":" if i < 2 else "：", html.escape(rest)))
-    out.append('<p class="gm"><a href="%s">%s</a></p>' % (rel(cur, TD + "/faq"), t(T.GB_MORE["proc"], i)))
+    out.append('<p class="gm"><a href="%s">%s</a></p>' % (link(cur, TD_IMMD["faq"], i), t(T.GB_MORE["proc"], i)))
     out.append("</section>")
     return "".join(out)
 
@@ -814,6 +843,8 @@ def main():
                 txt = home_page(i, hl, path, info)
             elif info["kind"] == "guide":
                 txt = guide_page(i, hl, path, info)
+            elif info["kind"] == "apps":
+                txt = apps_page(i, hl, path, info)
             else:
                 txt = inner_page(i, hl, path, info)
             with open(os.path.join(out_dir, "index.html"), "w", encoding="utf-8") as f:
