@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Static site generator for the BHG SAR Government portal (GovBHG).
+"""Static site generator for the Baekhyeon Hwarang SAR Government portal (GovBHG).
 
 The layout, information architecture and visual design follow the GovHK portal
 (home page, category / topic / service pages). All code, artwork and wording are original.
@@ -119,7 +119,7 @@ def build_registry():
         reg("misc/hero%d" % n, kind="misc", tab="residents", title=title, slug="hero%d" % n)
     reg("misc/advsearch", kind="misc", tab="residents", title=D.UI["adv"], slug="advsearch")
     reg("misc/guides", kind="misc", tab="residents", title=D.UI["guide"], slug="guides")
-    reg("misc/apply", kind="misc", tab="residents", title=("Application through the Internet for BHG SAR Passport", "인터넷 특별행정구 여권 신청", "透過互聯網申請柏峴화랑特別行政區護照"), slug="apply")
+    reg("misc/apply", kind="misc", tab="residents", title=("Application through the Internet for Baekhyeon Hwarang SAR Passport", "인터넷 백현화랑 특별행정구 여권 신청", "透過互聯網申請柏峴화랑特別行政區護照"), slug="apply")
     reg(GUIDE_PATH, kind="guide", tab="residents", title=T.GB_TITLE)
     for slug, title in T.GB_CRUMBS:
         if slug != "guides":

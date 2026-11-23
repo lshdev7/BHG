@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
-"""Content for the SAR Travel Documents section: topic page, booking, status enquiry and the
-'Application for BHG SAR Passport' guidebook.  Tuples are (English, Korean, Traditional Chinese)."""
+"""Content for Baekhyeon Hwarang Travel Documents section: topic page, booking, status enquiry and the
+'Application for Baekhyeon Hwarang SAR Passport' guidebook.  Tuples are (English, Korean, Traditional Chinese)."""
 
 # --------------------------------------------------------------------------- travel documents topic page
-TD_BANNER = ("Information for Application for BHG SAR Passport", "특별행정구 여권 신청 안내", "申請柏峴화랑特別行政區護照資料")
+TD_BANNER = ("Information for Application for Baekhyeon Hwarang SAR Passport", "백현화랑 특별행정구 여권 신청 안내", "申請柏峴화랑特別行政區護照資料")
 
 TD_COMMON = [  # (slug, title) shared link rows
     ("faq", ("Frequently Asked Questions", "자주 묻는 질문", "常見問題")),
     ("fees", ("Fees", "수수료", "費用")),
     ("branches", ("Addresses and Working Hours of Branch Offices", "지소 주소 및 근무 시간", "分區辦事處地址及辦公時間")),
     ("hq", ("Addresses and Working Hours of Offices at Headquarters", "본부 사무실 주소 및 근무 시간", "總部辦事處地址及辦公時間")),
-    ("lost", ("What to do if You Lose Your Identity Card and SAR Travel Documents", "신분증 및 특별행정구 여행증명서를 분실했을 때", "遺失身份證及特區旅行證件時應怎麼辦")),
+    ("lost", ("What to do if You Lose Your Identity Card and Baekhyeon Hwarang SAR Travel Documents", "신분증 및 백현화랑 특별행정구 여행증명서를 분실했을 때", "遺失身份證及柏峴화랑特別行政區旅行證件時應怎麼辦")),
 ]
 TD_GROUPS = [
     # (title, [(path-or-slug, title, is_page_path)])
@@ -39,8 +39,8 @@ TD_GROUPS = [
 ]
 TD_BLURB = {  # short descriptions shown in the accordion
     "Passport": (
-        "You can now apply for a BHG SAR Passport that complies with the standard of the International Civil Aviation Organization (ICAO). Find out more about its security features and the application details here.",
-        "국제민간항공기구(ICAO) 기준에 부합하는 특별행정구 여권을 신청할 수 있습니다. 보안 요소와 신청 방법을 여기에서 확인하세요.",
+        "You can now apply for a Baekhyeon Hwarang SAR Passport that complies with the standard of the International Civil Aviation Organization (ICAO). Find out more about its security features and the application details here.",
+        "국제민간항공기구(ICAO) 기준에 부합하는 백현화랑 특별행정구 여권을 신청할 수 있습니다. 보안 요소와 신청 방법을 여기에서 확인하세요.",
         "你現在可申請符合國際民航組織（ICAO）標準的柏峴화랑特別行政區護照。你可在這裏了解護照的防偽特徵及申請詳情。"),
 }
 
@@ -51,10 +51,10 @@ BOOK_BLOCKS = [
            "이 온라인 서비스로 출입경사무처 본부에서 다음 여행증명서 (i)~(iii)을, 또는 출입경사무처 지소 어디에서나 다음 여행증명서 (i)~(iv)를 신청하기 위한 예약을 할 수 있습니다.",
            "你可使用這項網上服務，預約到入境事務處總部申請下列第(i)至(iii)項旅行證件，或預約到任何一間入境事務處分區辦事處申請下列第(i)至(iv)項旅行證件 –")),
     ("olr", [
-        ("BHG SAR Passport", "특별행정구 여권", "柏峴화랑特別行政區護照"),
-        ("BHG SAR Re-entry Permit", "특별행정구 재입경 허가증", "柏峴화랑特別行政區回港證"),
-        ("BHG SAR Document of Identity for Visa Purposes", "특별행정구 비자용 신분증명서", "柏峴화랑特別行政區簽證身份書"),
-        ("BHG SAR Seaman's Identity Book", "특별행정구 선원 신분증", "柏峴화랑特別行政區海員身份證"),
+        ("Baekhyeon Hwarang SAR Passport", "백현화랑 특별행정구 여권", "柏峴화랑特別行政區護照"),
+        ("Baekhyeon Hwarang SAR Re-entry Permit", "백현화랑 특별행정구 재입경 허가증", "柏峴화랑特別行政區回港證"),
+        ("Baekhyeon Hwarang SAR Document of Identity for Visa Purposes", "백현화랑 특별행정구 비자용 신분증명서", "柏峴화랑特別行政區簽證身份書"),
+        ("Baekhyeon Hwarang SAR Seaman's Identity Book", "백현화랑 특별행정구 선원 신분증", "柏峴화랑特別行政區海員身份證"),
     ]),
     ("p", ("You can make advance booking within 24 working days for applying for travel documents in immigration offices. You can also change, cancel or enquire about the appointment you have made. This article will tell you what you should know before using the online booking service.",
            "출입경 사무소에서 여행증명서를 신청하기 위해 24근무일 이내로 미리 예약할 수 있습니다. 예약한 내용을 변경·취소하거나 조회할 수도 있습니다. 이 글에서는 온라인 예약 서비스를 이용하기 전에 알아야 할 사항을 안내합니다.",
@@ -75,23 +75,23 @@ BOOK_BLOCKS = [
     ("h2id", "howtostart", ("How to Start", "시작하는 방법", "如何開始")),
     ("p", ("Information required in appointment booking", "예약 시 필요한 정보", "預約時所需的資料")),
     ("ol", [
-        ("For applicants with BHG SAR identity (BHGID) cards, please enter your existing BHGID card number and your date of birth. If you are making an appointment for a child, please enter the child's existing BHGID card number and date of birth;",
-         "특별행정구 신분증(BHGID)을 소지한 신청인은 기존 BHGID 번호와 생년월일을 입력하세요. 자녀를 위한 예약이라면 자녀의 기존 BHGID 번호와 생년월일을 입력하세요.",
-         "持有柏峴화랑身份證（BHGID）的申請人，請輸入你現有的BHGID卡號碼及出生日期。如為兒童預約，請輸入該兒童現有的BHGID卡號碼及出生日期；"),
-        ("For a child without BHGID card, the parent / guardian should enter the BHGID card number and date of birth of the applying guardian (i.e. the parent/guardian who is going to sign the application form of the child and accompany him/her to apply) and date of birth of the child; or, if the child's birth has been registered, the child's SAR birth certificate number with its date of registration and the date of birth of the child;",
-         "BHGID가 없는 자녀의 경우, 부모·보호자는 신청 보호자(자녀의 신청서에 서명하고 동행하여 신청할 부모·보호자)의 BHGID 번호와 생년월일 및 자녀의 생년월일을 입력하거나, 자녀의 출생이 등록되어 있다면 자녀의 특별행정구 출생증명서 번호와 등록일, 자녀의 생년월일을 입력하세요.",
-         "未持有BHGID卡的兒童，其父、母或監護人須輸入申請監護人（即將簽署該兒童申請書並陪同其申請的父、母或監護人）的BHGID卡號碼及出生日期，以及該兒童的出生日期；或如該兒童的出生已登記，則輸入該兒童的特區出生證明書號碼及登記日期，以及該兒童的出生日期；"),
-        ("For newborn babies whose mother is a BHGID card holder, please enter the BHGID card number of the mother and the date of birth of the baby. Information input must match with the birth return of the hospital;",
-         "어머니가 BHGID 소지자인 신생아의 경우, 어머니의 BHGID 번호와 신생아의 생년월일을 입력하세요. 입력 정보는 병원의 출생 신고 내용과 일치해야 합니다.",
-         "母親持有BHGID卡的初生嬰兒，請輸入母親的BHGID卡號碼及嬰兒的出生日期。所輸入的資料必須與醫院的出生報告相符；"),
-        ("For newborn babies whose births have not been registered and whose parents do not hold a BHGID card, please enter the last six digits of the mother's travel document number and the child's date of birth, which must match with the birth return of the hospital;",
-         "출생이 아직 등록되지 않았고 부모가 BHGID를 소지하지 않은 신생아의 경우, 어머니의 여행증명서 번호 끝 6자리와 자녀의 생년월일을 입력하세요. 이는 병원의 출생 신고 내용과 일치해야 합니다.",
-         "出生尚未登記而父母均沒有BHGID卡的初生嬰兒，請輸入母親旅行證件號碼的最後六個數字及該兒童的出生日期，有關資料必須與醫院的出生報告相符；"),
+        ("For applicants with Baekhyeon Hwarang SAR identity (BHID) cards, please enter your existing BHID card number and your date of birth. If you are making an appointment for a child, please enter the child's existing BHID card number and date of birth;",
+         "백현화랑 특별행정구 신분증(BHID)을 소지한 신청인은 기존 BHID 번호와 생년월일을 입력하세요. 자녀를 위한 예약이라면 자녀의 기존 BHID 번호와 생년월일을 입력하세요.",
+         "持有柏峴화랑身份證（BHID）的申請人，請輸入你現有的BHID卡號碼及出生日期。如為兒童預約，請輸入該兒童現有的BHID卡號碼及出生日期；"),
+        ("For a child without BHID card, the parent / guardian should enter the BHID card number and date of birth of the applying guardian (i.e. the parent/guardian who is going to sign the application form of the child and accompany him/her to apply) and date of birth of the child; or, if the child's birth has been registered, the child's Baekhyeon Hwarang SAR birth certificate number with its date of registration and the date of birth of the child;",
+         "BHID가 없는 자녀의 경우, 부모·보호자는 신청 보호자(자녀의 신청서에 서명하고 동행하여 신청할 부모·보호자)의 BHID 번호와 생년월일 및 자녀의 생년월일을 입력하거나, 자녀의 출생이 등록되어 있다면 자녀의 백현화랑 특별행정구 출생증명서 번호와 등록일, 자녀의 생년월일을 입력하세요.",
+         "未持有BHID卡的兒童，其父、母或監護人須輸入申請監護人（即將簽署該兒童申請書並陪同其申請的父、母或監護人）的BHID卡號碼及出生日期，以及該兒童的出生日期；或如該兒童的出生已登記，則輸入該兒童的柏峴화랑特別行政區出生證明書號碼及登記日期，以及該兒童的出生日期；"),
+        ("For newborn babies whose mother is a BHID card holder, please enter the BHID card number of the mother and the date of birth of the baby. Information input must match with the birth return of the hospital;",
+         "어머니가 BHID 소지자인 신생아의 경우, 어머니의 BHID 번호와 신생아의 생년월일을 입력하세요. 입력 정보는 병원의 출생 신고 내용과 일치해야 합니다.",
+         "母親持有BHID卡的初生嬰兒，請輸入母親的BHID卡號碼及嬰兒的出生日期。所輸入的資料必須與醫院的出生報告相符；"),
+        ("For newborn babies whose births have not been registered and whose parents do not hold a BHID card, please enter the last six digits of the mother's travel document number and the child's date of birth, which must match with the birth return of the hospital;",
+         "출생이 아직 등록되지 않았고 부모가 BHID를 소지하지 않은 신생아의 경우, 어머니의 여행증명서 번호 끝 6자리와 자녀의 생년월일을 입력하세요. 이는 병원의 출생 신고 내용과 일치해야 합니다.",
+         "出生尚未登記而父母均沒有BHID卡的初生嬰兒，請輸入母親旅行證件號碼的最後六個數字及該兒童的出生日期，有關資料必須與醫院的出生報告相符；"),
         ("You may book an appointment for up to 4 applicants, with a maximum of 4 applications. Applicants of the same appointment should turn up at the chosen office together at the selected time slot;",
          "한 번에 최대 4명의 신청인, 최대 4건의 신청을 예약할 수 있습니다. 같은 예약의 신청인은 선택한 시간대에 선택한 사무소에 함께 방문해야 합니다.",
          "每次預約最多可為4名申請人預約，最多可作4宗申請。同一預約的申請人須於所選時段一同前往所選辦事處；"),
-        ("In one booking, you can make appointment for up to two types of travel documents (e.g. BHG SAR Passport & BHG SAR Re-entry Permit);",
-         "한 번의 예약으로 최대 2종류의 여행증명서(예: 특별행정구 여권과 재입경 허가증)를 예약할 수 있습니다.",
+        ("In one booking, you can make appointment for up to two types of travel documents (e.g. Baekhyeon Hwarang SAR Passport & Baekhyeon Hwarang SAR Re-entry Permit);",
+         "한 번의 예약으로 최대 2종류의 여행증명서(예: 백현화랑 특별행정구 여권과 재입경 허가증)를 예약할 수 있습니다.",
          "每次預約最多可預約兩種旅行證件（例如柏峴화랑特別行政區護照及回港證）；"),
         ("For each type of travel document to be applied, you are only required to make one appointment booking for your multiple birth babies; and",
          "신청하려는 여행증명서 종류마다, 다태아 자녀에 대해서는 한 번만 예약하면 됩니다.",
@@ -127,14 +127,14 @@ BOOK_BLOCKS = [
            "신청하려는 여행증명서의 종류에 따라 필요한 증빙서류를 예약 당일 지참하세요. 자세한 내용은 아래 링크를 참고하세요.",
            "你應按所申請的旅行證件種類，在預約當日攜帶所需的證明文件。詳情請參閱以下連結。")),
     ("links", [
-        ("More information on BHG SAR Passport", "특별행정구 여권 자세히 보기", "更多關於柏峴화랑特別行政區護照的資料"),
-        ("More information on BHG SAR Re-entry Permit", "특별행정구 재입경 허가증 자세히 보기", "更多關於柏峴화랑特別行政區回港證的資料"),
-        ("More information on BHG SAR Document of Identity for Visa Purposes", "특별행정구 비자용 신분증명서 자세히 보기", "更多關於柏峴화랑特別行政區簽證身份書的資料"),
-        ("More information on BHG SAR Seaman's Identity Book", "특별행정구 선원 신분증 자세히 보기", "更多關於柏峴화랑特別行政區海員身份證的資料"),
+        ("More information on Baekhyeon Hwarang SAR Passport", "백현화랑 특별행정구 여권 자세히 보기", "更多關於柏峴화랑特別行政區護照的資料"),
+        ("More information on Baekhyeon Hwarang SAR Re-entry Permit", "백현화랑 특별행정구 재입경 허가증 자세히 보기", "更多關於柏峴화랑特別行政區回港證的資料"),
+        ("More information on Baekhyeon Hwarang SAR Document of Identity for Visa Purposes", "백현화랑 특별행정구 비자용 신분증명서 자세히 보기", "更多關於柏峴화랑特別行政區簽證身份書的資料"),
+        ("More information on Baekhyeon Hwarang SAR Seaman's Identity Book", "백현화랑 특별행정구 선원 신분증 자세히 보기", "更多關於柏峴화랑特別行政區海員身份證的資料"),
     ]),
     ("h2", ("Booking through Immigration Department Mobile Application or by Phone", "출입경사무처 모바일 앱 또는 전화로 예약", "透過入境事務處流動應用程式或電話預約")),
-    ("p", ("Besides the online booking system, you can also make an appointment to apply for BHG SAR Passport, BHG SAR Re-entry Permit and BHG SAR Document of Identity for Visa Purposes through Immigration Department Mobile Application or via the 24-hour telephone booking system. Appointment for BHG SAR Seaman's Identity Book can be made through the online booking system and Immigration Department Mobile Application.",
-           "온라인 예약 시스템 외에도, 출입경사무처 모바일 앱 또는 24시간 전화 예약 시스템으로 특별행정구 여권, 재입경 허가증, 비자용 신분증명서 신청을 예약할 수 있습니다. 특별행정구 선원 신분증 신청은 온라인 예약 시스템과 출입경사무처 모바일 앱으로 예약할 수 있습니다.",
+    ("p", ("Besides the online booking system, you can also make an appointment to apply for Baekhyeon Hwarang SAR Passport, Baekhyeon Hwarang SAR Re-entry Permit and Baekhyeon Hwarang SAR Document of Identity for Visa Purposes through Immigration Department Mobile Application or via the 24-hour telephone booking system. Appointment for Baekhyeon Hwarang SAR Seaman's Identity Book can be made through the online booking system and Immigration Department Mobile Application.",
+           "온라인 예약 시스템 외에도, 출입경사무처 모바일 앱 또는 24시간 전화 예약 시스템으로 백현화랑 특별행정구 여권, 재입경 허가증, 비자용 신분증명서 신청을 예약할 수 있습니다. 백현화랑 특별행정구 선원 신분증 신청은 온라인 예약 시스템과 출입경사무처 모바일 앱으로 예약할 수 있습니다.",
            "除網上預約系統外，你亦可透過入境事務處流動應用程式或24小時電話預約系統，預約申請柏峴화랑特別行政區護照、回港證及簽證身份書。柏峴화랑特別行政區海員身份證可透過網上預約系統及入境事務處流動應用程式預約。")),
     ("h2", ("Immigration Offices for Travel Document Applications", "여행증명서 신청 출입경 사무소", "受理旅行證件申請的入境事務辦事處")),
     ("p", ("Please refer to the following link for the addresses and working hours of Immigration Offices for Travel Document Applications.",
@@ -160,12 +160,12 @@ BOOK_BLOCKS = [
 # --------------------------------------------------------------------------- Status enquiry
 STATUS_TITLE = ("Online Travel Document Application Status Enquiry", "여행증명서 신청 현황 온라인 조회", "網上查詢旅行證件申請進度")
 STATUS_BLOCKS = [
-    ("p", ("If you have submitted an application related to a BHG SAR Travel Document to the Immigration Department, you can enquire online about the status of that application. This page will tell you who can use the online service, how to use it and how to obtain further information.",
-           "특별행정구 여행증명서와 관련된 신청을 출입경사무처에 제출했다면, 해당 신청의 처리 현황을 온라인으로 조회할 수 있습니다. 이 페이지에서는 이 서비스를 이용할 수 있는 사람, 이용 방법과 추가 정보를 얻는 방법을 안내합니다.",
+    ("p", ("If you have submitted an application related to a Baekhyeon Hwarang SAR Travel Document to the Immigration Department, you can enquire online about the status of that application. This page will tell you who can use the online service, how to use it and how to obtain further information.",
+           "백현화랑 특별행정구 여행증명서와 관련된 신청을 출입경사무처에 제출했다면, 해당 신청의 처리 현황을 온라인으로 조회할 수 있습니다. 이 페이지에서는 이 서비스를 이용할 수 있는 사람, 이용 방법과 추가 정보를 얻는 방법을 안내합니다.",
            "如你已向入境事務處遞交有關柏峴화랑特別行政區旅行證件的申請，你可在網上查詢該申請的進度。本頁會告訴你誰可使用這項網上服務、如何使用及如何取得進一步資料。")),
     ("h2", ("Who Can Use This Service", "이용 대상", "誰可使用此服務")),
-    ("p", ("If you have submitted an application for BHG SAR passport, Document of Identity for Visa Purposes or Re-entry Permit, you can use the service to enquire about the status of application.",
-           "특별행정구 여권, 비자용 신분증명서 또는 재입경 허가증을 신청했다면 이 서비스로 신청 현황을 조회할 수 있습니다.",
+    ("p", ("If you have submitted an application for Baekhyeon Hwarang SAR passport, Document of Identity for Visa Purposes or Re-entry Permit, you can use the service to enquire about the status of application.",
+           "백현화랑 특별행정구 여권, 비자용 신분증명서 또는 재입경 허가증을 신청했다면 이 서비스로 신청 현황을 조회할 수 있습니다.",
            "如你已遞交柏峴화랑特別行政區護照、簽證身份書或回港證的申請，你可使用此服務查詢申請進度。")),
     ("h2", ("How to Make an Enquiry Online", "온라인으로 조회하는 방법", "如何在網上查詢")),
     ("p", ("You can access the service through the link below. When you have done so, you will need to enter your application reference number and input your day and year of birth. If the information matches the Immigration Department's records, the application status will be shown.",
@@ -174,8 +174,8 @@ STATUS_BLOCKS = [
     ("p", ("If your application has been cancelled or finalised, the record will be purged from the system and you will not be able to enquire about its status.",
            "신청이 취소되었거나 처리가 완료된 경우 해당 기록은 시스템에서 삭제되어 현황을 조회할 수 없습니다.",
            "如你的申請已被取消或已處理完畢，有關紀錄會從系統中清除，你將無法查詢其進度。")),
-    ("p", ("The application status enquiry service is also available on “BH Smart” for applications of BHG SAR travel documents submitted on or after 1 January 2026. By registering for a “BH Smart” account and providing user authorisation, you can view the application status under “Status” of the “Personal Assistant” page. To ensure you can receive the latest information, your “BH Smart” account must remain valid.",
-           "2026년 1월 1일 이후 제출한 특별행정구 여행증명서 신청은 \"BH 스마트\"에서도 현황을 조회할 수 있습니다. \"BH 스마트\" 계정을 등록하고 이용자 권한 부여를 하면 \"개인 비서\" 페이지의 \"현황\"에서 신청 현황을 볼 수 있습니다. 최신 정보를 받으려면 \"BH 스마트\" 계정이 유효한 상태여야 합니다.",
+    ("p", ("The application status enquiry service is also available on “BH Smart” for applications of Baekhyeon Hwarang SAR travel documents submitted on or after 1 January 2026. By registering for a “BH Smart” account and providing user authorisation, you can view the application status under “Status” of the “Personal Assistant” page. To ensure you can receive the latest information, your “BH Smart” account must remain valid.",
+           "2026년 1월 1일 이후 제출한 백현화랑 특별행정구 여행증명서 신청은 \"BH 스마트\"에서도 현황을 조회할 수 있습니다. \"BH 스마트\" 계정을 등록하고 이용자 권한 부여를 하면 \"개인 비서\" 페이지의 \"현황\"에서 신청 현황을 볼 수 있습니다. 최신 정보를 받으려면 \"BH 스마트\" 계정이 유효한 상태여야 합니다.",
            "2026年1月1日或以後遞交的柏峴화랑特別行政區旅行證件申請，亦可透過「BH智方便」查詢申請進度。登記「BH智方便」帳戶並提供用戶授權後，你可在「個人助理」頁面的「進度」中查看申請進度。為確保你能收到最新資料，你的「BH智方便」帳戶必須保持有效。")),
     ("link", ("Details on “Personal Assistant” of “BH Smart” and How to Provide User Authorisation", "\"BH 스마트\" \"개인 비서\" 상세 안내 및 이용자 권한 부여 방법", "「BH智方便」「個人助理」詳情及如何提供用戶授權"), "bhsmart"),
     ("btn", STATUS_TITLE, "apply"),
@@ -188,15 +188,15 @@ STATUS_BLOCKS = [
            "一般查詢可於辦公時間（星期一至五及星期六上午，公眾假期除外）向入境事務處查詢。")),
 ]
 
-# --------------------------------------------------------------------------- Guidebook: Application for BHG SAR Passport
-GB_TITLE = ("Application for BHG SAR Passport", "특별행정구 여권 신청", "申請柏峴화랑特別行政區護照")
-GB_INTRO = ("A person is eligible to apply for a Baekhyeon Hwarang Special Administrative Region (BHG SAR) Passport if he/she is:",
-            "다음에 해당하는 사람은 백현화랑특별행정구(BHG SAR) 여권을 신청할 자격이 있습니다.",
-            "符合下列條件的人士可申請柏峴화랑特別行政區（BHG SAR）護照：")
+# --------------------------------------------------------------------------- Guidebook: Application for Baekhyeon Hwarang SAR Passport
+GB_TITLE = ("Application for Baekhyeon Hwarang SAR Passport", "백현화랑 특별행정구 여권 신청", "申請柏峴화랑特別行政區護照")
+GB_INTRO = ("A person is eligible to apply for a Baekhyeon Hwarang Special Administrative Region (Baekhyeon Hwarang SAR) Passport if he/she is:",
+            "다음에 해당하는 사람은 백현화랑 특별행정구 여권을 신청할 자격이 있습니다.",
+            "符合下列條件的人士可申請柏峴화랑特別行政區護照：")
 GB_ELIG = [
     ("a Korean citizen;", "대한민국 국민이고,", "大韓民國國民；"),
-    ("a permanent resident of the BHG SAR; and", "특별행정구 영주권자이며,", "柏峴화랑特別行政區永久性居民；及"),
-    ("a holder of a valid BHG SAR permanent identity card.", "유효한 특별행정구 영구 신분증을 소지한 사람.", "持有有效柏峴화랑永久性居民身份證。"),
+    ("a permanent resident of the Baekhyeon Hwarang SAR; and", "백현화랑 특별행정구 영주권자이며,", "柏峴화랑特別行政區永久性居民；及"),
+    ("a holder of a valid Baekhyeon Hwarang SAR permanent identity card.", "유효한 백현화랑 특별행정구 영구 신분증을 소지한 사람.", "持有有效柏峴화랑永久性居民身份證。"),
 ]
 GB_MORE_ELIG = ("More on eligibility", "자격 요건 자세히 보기", "更多關於資格的資料")
 GB_SEC = {
@@ -220,15 +220,15 @@ _PHOTO = ("A recent colour photograph with white background that conforms to the
           "규격에 맞는, 흰색 배경의 최근 컬러 사진.", "背景為白色的彩色近照，須符合規格。")
 _PHOTO3 = ("Three recent colour photographs with white background that conforms to the specifications.",
            "규격에 맞는, 흰색 배경의 최근 컬러 사진 3장.", "背景為白色的彩色近照三張，須符合規格。")
-_IDCARD16 = ("BHG SAR permanent identity card / Acknowledgement of application for a BHG SAR permanent identity card.",
-             "특별행정구 영구 신분증 / 영구 신분증 신청 확인서.", "柏峴화랑永久性居民身份證／「申請柏峴화랑永久性居民身份證收據」。")
+_IDCARD16 = ("Baekhyeon Hwarang SAR permanent identity card / Acknowledgement of application for a Baekhyeon Hwarang SAR permanent identity card.",
+             "백현화랑 특별행정구 영구 신분증 / 영구 신분증 신청 확인서.", "柏峴화랑永久性居民身份證／「申請柏峴화랑永久性居民身份證收據」。")
 _ADD1617 = ("Additional requirements for applicants aged 16 or 17", "만 16세·17세 신청인의 추가 요건", "十六及十七歲申請人的額外規定")
-_PARENTID = ("Consenting parent or legal guardian's BHG SAR identity card or valid travel document(s).",
-             "동의하는 부모 또는 법정대리인의 특별행정구 신분증 또는 유효한 여행증명서.",
+_PARENTID = ("Consenting parent or legal guardian's Baekhyeon Hwarang SAR identity card or valid travel document(s).",
+             "동의하는 부모 또는 법정대리인의 백현화랑 특별행정구 신분증 또는 유효한 여행증명서.",
              "同意這項申請的父、母或合法監護人的柏峴화랑身份證或有效旅行證件。")
-_MARRIED = ("If the applicant is married, only his/her marriage certificate (not required if the applicant got married in the SAR) is required. Parental or legal guardian's consent and items %s are not required.",
-            "신청인이 기혼인 경우 혼인증명서(특별행정구에서 혼인한 경우 불필요)만 필요하며, 부모 또는 법정대리인의 동의와 %s 서류는 필요하지 않습니다.",
-            "如申請人已婚，則只須提交其結婚證書（如在特區結婚則無需提交），無須父、母或合法監護人的同意及第%s項的文件。")
+_MARRIED = ("If the applicant is married, only his/her marriage certificate (not required if the applicant got married in Baekhyeon Hwarang) is required. Parental or legal guardian's consent and items %s are not required.",
+            "신청인이 기혼인 경우 혼인증명서(백현화랑 특별행정구에서 혼인한 경우 불필요)만 필요하며, 부모 또는 법정대리인의 동의와 %s 서류는 필요하지 않습니다.",
+            "如申請人已婚，則只須提交其結婚證書（如在柏峴화랑結婚則無需提交），無須父、母或合法監護人的同意及第%s項的文件。")
 
 
 _PAYCOLS_IN = [
@@ -254,7 +254,7 @@ _PAYCOLS_OUT = [
     ("Credit card (VISA, Mastercard and JCB only)", "신용카드(VISA, Mastercard, JCB만 가능)", "信用卡（只接受VISA、萬事達卡及JCB）"),
     ("Cheque", "수표", "支票"),
     ("Bank draft", "은행 어음", "銀行匯票"),
-    ("Referee in the SAR", "특별행정구 내 보증인", "特區內的擔保人"),
+    ("Referee in Baekhyeon Hwarang", "백현화랑 특별행정구 내 보증인", "柏峴화랑特別行政區內的擔保人"),
     ("Instant bank transfer", "계좌 간편이체", "即時轉賬"),
     ("Mobile wallets", "모바일 지갑", "流動錢包"),
 ]
@@ -267,16 +267,16 @@ _ROWS_OUT = [
 _NOTE_IN = ("^Passport fee is payable at the time of application by paying online through OPS, instant bank transfer, mobile wallets or credit card (VISA, Mastercard and JCB only). For application submitted through the ImmD Mobile Application, it is payable at the time of application through instant bank transfer, mobile wallets or credit card (VISA, Mastercard and JCB only).",
             "^여권 수수료는 신청 시 온라인 결제 서비스, 계좌 간편이체, 모바일 지갑 또는 신용카드(VISA, Mastercard, JCB만 가능)로 온라인 납부합니다. 출입경사무처 모바일 앱으로 신청한 경우에는 신청 시 계좌 간편이체, 모바일 지갑 또는 신용카드(VISA, Mastercard, JCB만 가능)로 납부합니다.",
             "^護照費用須於遞交申請時，透過網上繳費服務、即時轉賬、流動錢包或信用卡（只接受VISA、萬事達卡及JCB）在網上繳付。透過入境事務處流動應用程式遞交的申請，須於遞交申請時透過即時轉賬、流動錢包或信用卡（只接受VISA、萬事達卡及JCB）繳付。")
-_NOTE_OUT = ("^Passport fee and the additional charge for the delivery of the passport from the BHG SAR to the Korean Diplomatic and Consular Missions (if applicable) are payable at the time of application by paying online through OPS, instant bank transfer, mobile wallets or credit card (VISA, Mastercard and JCB only). For application submitted through the ImmD Mobile Application, it is payable at the time of application through instant bank transfer, mobile wallets or credit card (VISA, Mastercard and JCB only).",
-             "^여권 수수료와 특별행정구에서 재외공관으로 여권을 보내는 데 드는 추가 요금(해당되는 경우)은 신청 시 온라인 결제 서비스, 계좌 간편이체, 모바일 지갑 또는 신용카드(VISA, Mastercard, JCB만 가능)로 온라인 납부합니다. 출입경사무처 모바일 앱으로 신청한 경우에는 신청 시 계좌 간편이체, 모바일 지갑 또는 신용카드(VISA, Mastercard, JCB만 가능)로 납부합니다.",
-             "^護照費用及將護照由特區遞送至大韓民國駐外使領館的額外費用（如適用），須於遞交申請時透過網上繳費服務、即時轉賬、流動錢包或信用卡（只接受VISA、萬事達卡及JCB）在網上繳付。透過入境事務處流動應用程式遞交的申請，須於遞交申請時透過即時轉賬、流動錢包或信用卡（只接受VISA、萬事達卡及JCB）繳付。")
+_NOTE_OUT = ("^Passport fee and the additional charge for the delivery of the passport from the Baekhyeon Hwarang SAR to the Korean Diplomatic and Consular Missions (if applicable) are payable at the time of application by paying online through OPS, instant bank transfer, mobile wallets or credit card (VISA, Mastercard and JCB only). For application submitted through the ImmD Mobile Application, it is payable at the time of application through instant bank transfer, mobile wallets or credit card (VISA, Mastercard and JCB only).",
+             "^여권 수수료와 백현화랑 특별행정구에서 재외공관으로 여권을 보내는 데 드는 추가 요금(해당되는 경우)은 신청 시 온라인 결제 서비스, 계좌 간편이체, 모바일 지갑 또는 신용카드(VISA, Mastercard, JCB만 가능)로 온라인 납부합니다. 출입경사무처 모바일 앱으로 신청한 경우에는 신청 시 계좌 간편이체, 모바일 지갑 또는 신용카드(VISA, Mastercard, JCB만 가능)로 납부합니다.",
+             "^護照費用及將護照由柏峴화랑特別行政區遞送至大韓民國駐外使領館的額外費用（如適用），須於遞交申請時透過網上繳費服務、即時轉賬、流動錢包或信用卡（只接受VISA、萬事達卡及JCB）在網上繳付。透過入境事務處流動應用程式遞交的申請，須於遞交申請時透過即時轉賬、流動錢包或信用卡（只接受VISA、萬事達卡及JCB）繳付。")
 _ADDR = (("*Address:", "*주소:", "*地址："),
          [("Travel Documents and Nationality (Application) Section", "여행증명서·국적(신청) 과", "旅行證件及國籍（申請）組"),
           ("Immigration Headquarters", "출입경사무처 본부", "入境事務處總部"),
-          ("Baekhyeon Hwarang Special Administrative Region", "백현화랑특별행정구", "柏峴화랑特別行政區")])
+          ("Baekhyeon Hwarang Special Administrative Region", "백현화랑 특별행정구", "柏峴화랑特別行政區")])
 
 _COL_IN = (
-    ("Collection in the SAR", "특별행정구 내 수령", "在特區領取"),
+    ("Collection in Baekhyeon Hwarang", "백현화랑 특별행정구 내 수령", "在柏峴화랑領取"),
     ("After receipt of the Collection Notice issued by the Immigration Department notifying the period and office for collecting the passport, unless receiving further notice from the Immigration Department, the applicant can collect the new passport at the selected office direct according to the prescribed details on the Collection Notice.",
      "출입경사무처가 발급한 수령 통지서(수령 기간 및 수령 사무소 안내)를 받은 후, 출입경사무처의 추가 통지가 없는 한 신청인은 수령 통지서에 적힌 내용에 따라 선택한 사무소에서 직접 새 여권을 수령할 수 있습니다.",
      "收到入境事務處發出的領證通知（列明領取護照的期限及辦事處）後，除非接獲入境事務處的進一步通知，申請人可按領證通知所列的詳情，直接到所選定的辦事處領取新護照。"),
@@ -294,8 +294,8 @@ _COL_KDCM_CHILD = (
      "兒童的同意申請的父、母或合法監護人須按大韓民國駐外使領館的指示領取護照。"),
 )
 _PROC5 = ("The processing time will take 5 working days.", "처리 기간은 5근무일입니다.", "處理時間為5個工作天。")
-_PROC10 = ("The processing time will take 5 working days. It will take 10 working days for applications from children aged under 11 not holding a BHG SAR permanent identity card.",
-           "처리 기간은 5근무일입니다. 특별행정구 영구 신분증이 없는 만 11세 미만 아동의 신청은 10근무일이 걸립니다.",
+_PROC10 = ("The processing time will take 5 working days. It will take 10 working days for applications from children aged under 11 not holding a Baekhyeon Hwarang SAR permanent identity card.",
+           "처리 기간은 5근무일입니다. 백현화랑 특별행정구 영구 신분증이 없는 만 11세 미만 아동의 신청은 10근무일이 걸립니다.",
            "處理時間為5個工作天。如為未持有柏峴화랑永久性居民身份證的十一歲以下兒童申請，則需10個工作天。")
 _PROC_NOTE = ("Note for applicants who choose to collect passport via the Korean Diplomatic and Consular Missions: The time for dispatching the prepared passport is excluded from the processing time listed above. The actual delivery time will be subject to factors including the duration of security checks, air freight capacity, and progress of customs clearance at the destination. Extra time may be necessary for destinations that are more remote. Given it will take time to complete the passport application until the new passport reaches the selected mission, applicants with travel plans are reminded to allow sufficient time for the application for and collection of their new passports.",
               "재외공관 수령을 선택한 신청인 유의사항: 위 처리 기간에는 완성된 여권을 발송하는 데 걸리는 시간이 포함되지 않습니다. 실제 배송 시간은 보안 검색 소요 시간, 항공 화물 여력, 도착지의 통관 진행 상황 등에 따라 달라지며, 먼 지역은 더 오래 걸릴 수 있습니다. 새 여권이 선택한 재외공관에 도착하기까지 시간이 걸리므로, 여행 계획이 있는 신청인은 신청과 수령에 충분한 시간을 두시기 바랍니다.",
@@ -305,20 +305,20 @@ _PROC_NOTE = ("Note for applicants who choose to collect passport via the Korean
 GB_TABS = [
     {
         "id": "a",
-        "title": ("Persons Aged 16 or Above (Applying in the SAR)", "만 16세 이상(특별행정구 내 신청)", "十六歲或以上人士（於特區申請）"),
+        "title": ("Persons Aged 16 or Above (Applying in Baekhyeon Hwarang)", "만 16세 이상(백현화랑 특별행정구 내 신청)", "十六歲或以上人士（於柏峴화랑申請）"),
         "forms": [
             (("Application form (ID 841)", "신청서(ID 841)", "申請表格（ID 841）"), None),
-            (("Fee payment form for BHG SAR Passport to be collected outside the SAR (Form ID 853A) (For applicants who choose to collect the passport at the Korean Diplomatic and Consular Missions)",
-              "특별행정구 밖에서 수령하는 특별행정구 여권 수수료 납부서(서식 ID 853A)(재외공관 수령을 선택한 신청인용)",
-              "於特區以外地區領取的柏峴화랑特別行政區護照費用繳費表格（表格ID 853A）（適用於選擇在大韓民國駐外使領館領取護照的申請人）"), None),
+            (("Fee payment form for Baekhyeon Hwarang SAR Passport to be collected outside Baekhyeon Hwarang (Form ID 853A) (For applicants who choose to collect the passport at the Korean Diplomatic and Consular Missions)",
+              "백현화랑 특별행정구 밖에서 수령하는 백현화랑 특별행정구 여권 수수료 납부서(서식 ID 853A)(재외공관 수령을 선택한 신청인용)",
+              "於柏峴화랑以外地區領取的柏峴화랑特別行政區護照費用繳費表格（表格ID 853A）（適用於選擇在大韓民國駐外使領館領取護照的申請人）"), None),
             (("Photograph", "사진", "照片"), _PHOTO),
         ],
         "docs": [
             (("Persons aged 16 or above", "만 16세 이상", "十六歲或以上人士"), [("(a) ", _IDCARD16)]),
             (_ADD1617, [("(b) ", _PARENTID),
-                        ("(c) ", ("Birth certificate (not required if the applicant was born in the SAR) to prove his/her relationship with the consenting parent, or a court order, if applicable, to prove that the consenting legal guardian concerned has custodial rights in respect of him/her.",
-                                  "동의하는 부모와의 관계를 증명하는 출생증명서(특별행정구에서 출생한 경우 불필요) 또는, 해당되는 경우 해당 법정대리인의 양육권을 증명하는 법원 명령서.",
-                                  "出生證明書（如申請人在特區出生則無需提交），以證明其與同意申請的父、母的關係；或法庭頒令（如適用），以證明有關合法監護人對其擁有管養權。")),
+                        ("(c) ", ("Birth certificate (not required if the applicant was born in Baekhyeon Hwarang) to prove his/her relationship with the consenting parent, or a court order, if applicable, to prove that the consenting legal guardian concerned has custodial rights in respect of him/her.",
+                                  "동의하는 부모와의 관계를 증명하는 출생증명서(백현화랑 특별행정구에서 출생한 경우 불필요) 또는, 해당되는 경우 해당 법정대리인의 양육권을 증명하는 법원 명령서.",
+                                  "出生證明書（如申請人在柏峴화랑出生則無需提交），以證明其與同意申請的父、母的關係；或法庭頒令（如適用），以證明有關合法監護人對其擁有管養權。")),
                         ("(d) ", (_MARRIED[0] % "(b) and (c)", _MARRIED[1] % "(b), (c)", _MARRIED[2] % "(b)及(c)"))]),
         ],
         "means": (_PAYCOLS_IN, _ROWS_IN, _NOTE_IN, True, True),
@@ -327,35 +327,35 @@ GB_TABS = [
     },
     {
         "id": "b",
-        "title": ("Children Aged Under 16 (Applying in the SAR)", "만 16세 미만 아동(특별행정구 내 신청)", "十六歲以下兒童（於特區申請）"),
+        "title": ("Children Aged Under 16 (Applying in Baekhyeon Hwarang)", "만 16세 미만 아동(백현화랑 특별행정구 내 신청)", "十六歲以下兒童（於柏峴화랑申請）"),
         "forms": [
             (("Application form (ID 842)", "신청서(ID 842)", "申請表格（ID 842）"), None),
-            (("Fee payment form for BHG SAR Passport to be collected outside the SAR (ID 853A) (For applicants who choose to collect the passport at the Korean Diplomatic and Consular Missions)",
-              "특별행정구 밖에서 수령하는 특별행정구 여권 수수료 납부서(ID 853A)(재외공관 수령을 선택한 신청인용)",
-              "於特區以外地區領取的柏峴화랑特別行政區護照費用繳費表格（ID 853A）（適用於選擇在大韓民國駐外使領館領取護照的申請人）"), None),
+            (("Fee payment form for Baekhyeon Hwarang SAR Passport to be collected outside Baekhyeon Hwarang (ID 853A) (For applicants who choose to collect the passport at the Korean Diplomatic and Consular Missions)",
+              "백현화랑 특별행정구 밖에서 수령하는 백현화랑 특별행정구 여권 수수료 납부서(ID 853A)(재외공관 수령을 선택한 신청인용)",
+              "於柏峴화랑以外地區領取的柏峴화랑特別行政區護照費用繳費表格（ID 853A）（適用於選擇在大韓民國駐外使領館領取護照的申請人）"), None),
             (("Photograph", "사진", "照片"), _PHOTO),
         ],
         "docs": [
             (("Children aged under 16", "만 16세 미만 아동", "十六歲以下兒童"), [
-                ("(a) ", ("The child's BHG SAR permanent identity card / Acknowledgement of application for a BHG SAR permanent identity card.",
-                          "자녀의 특별행정구 영구 신분증 / 영구 신분증 신청 확인서.",
+                ("(a) ", ("The child's Baekhyeon Hwarang SAR permanent identity card / Acknowledgement of application for a Baekhyeon Hwarang SAR permanent identity card.",
+                          "자녀의 백현화랑 특별행정구 영구 신분증 / 영구 신분증 신청 확인서.",
                           "該兒童的柏峴화랑永久性居民身份證／「申請柏峴화랑永久性居民身份證收據」。")),
                 ("(b) ", _PARENTID),
-                ("(c) ", ("The child's birth certificate (not required if the child was born in the SAR) to prove the relationship between the parent and the child, or a court order, if applicable, to prove that the consenting legal guardian concerned has custodial rights in respect of the child.",
-                          "부모와 자녀의 관계를 증명하는 자녀의 출생증명서(특별행정구에서 출생한 경우 불필요) 또는, 해당되는 경우 해당 법정대리인의 양육권을 증명하는 법원 명령서.",
-                          "該兒童的出生證明書（如兒童在特區出生則無需提交），以證明父、母與該兒童的關係；或法庭頒令（如適用），以證明有關合法監護人對該兒童擁有管養權。"))]),
+                ("(c) ", ("The child's birth certificate (not required if the child was born in Baekhyeon Hwarang) to prove the relationship between the parent and the child, or a court order, if applicable, to prove that the consenting legal guardian concerned has custodial rights in respect of the child.",
+                          "부모와 자녀의 관계를 증명하는 자녀의 출생증명서(백현화랑 특별행정구에서 출생한 경우 불필요) 또는, 해당되는 경우 해당 법정대리인의 양육권을 증명하는 법원 명령서.",
+                          "該兒童的出生證明書（如兒童在柏峴화랑出生則無需提交），以證明父、母與該兒童的關係；或法庭頒令（如適用），以證明有關合法監護人對該兒童擁有管養權。"))]),
             (("Additional requirements for children aged under 11", "만 11세 미만 아동의 추가 요건", "十一歲以下兒童的額外規定"), [
-                ("(d) ", ("School document (e.g. a Student's Handbook bearing the child's name, date of birth and photograph that should be certified by a chop of the school) or other proof of identity is required. If such school document or proof of identity is not available, a completed Form for Countersignature (ID 641) together with a photocopy of the countersignatory's BHG SAR identity card or valid travel document(s) bearing the countersignatory's signature.",
-                          "학교 서류(자녀의 이름·생년월일·사진이 있고 학교 직인이 찍힌 학생 수첩 등) 또는 기타 신원 증명서가 필요합니다. 이러한 서류가 없는 경우, 작성한 확인 서명 서식(ID 641)과 서명 확인인의 서명이 있는 특별행정구 신분증 또는 유효한 여행증명서 사본을 제출합니다.",
+                ("(d) ", ("School document (e.g. a Student's Handbook bearing the child's name, date of birth and photograph that should be certified by a chop of the school) or other proof of identity is required. If such school document or proof of identity is not available, a completed Form for Countersignature (ID 641) together with a photocopy of the countersignatory's Baekhyeon Hwarang SAR identity card or valid travel document(s) bearing the countersignatory's signature.",
+                          "학교 서류(자녀의 이름·생년월일·사진이 있고 학교 직인이 찍힌 학생 수첩 등) 또는 기타 신원 증명서가 필요합니다. 이러한 서류가 없는 경우, 작성한 확인 서명 서식(ID 641)과 서명 확인인의 서명이 있는 백현화랑 특별행정구 신분증 또는 유효한 여행증명서 사본을 제출합니다.",
                           "須提交學校證明文件（例如載有兒童姓名、出生日期及照片，並經學校蓋印認證的學生手冊）或其他身份證明文件。若未能提供該等學校證明文件或身份證明，則須提交已填妥的副署事項表格（ID 641），以及載有副署人簽名的副署人柏峴화랑身份證或有效旅行證件副本。"))]),
-            (("Additional requirements for children aged under 11 who do not hold BHG SAR permanent identity cards", "특별행정구 영구 신분증이 없는 만 11세 미만 아동의 추가 요건", "未持有柏峴화랑永久性居民身份證的十一歲以下兒童的額外規定"), [
+            (("Additional requirements for children aged under 11 who do not hold Baekhyeon Hwarang SAR permanent identity cards", "백현화랑 특별행정구 영구 신분증이 없는 만 11세 미만 아동의 추가 요건", "未持有柏峴화랑永久性居民身份證的十一歲以下兒童的額外規定"), [
                 ("(e) ", ("An additional photograph (two identical photographs should be submitted in total).", "사진 1장 추가(동일한 사진 총 2장 제출).", "額外照片一張（合共須提交兩張相同的照片）。")),
-                ("(f) ", ("An application form (ROP 3) for a BHG SAR permanent identity card, duly completed and signed by the parent or legal guardian of the child.",
-                          "작성하고 부모 또는 법정대리인이 서명한 특별행정구 영구 신분증 신청서(ROP 3).",
+                ("(f) ", ("An application form (ROP 3) for a Baekhyeon Hwarang SAR permanent identity card, duly completed and signed by the parent or legal guardian of the child.",
+                          "작성하고 부모 또는 법정대리인이 서명한 백현화랑 특별행정구 영구 신분증 신청서(ROP 3).",
                           "已填妥並由兒童的父、母或合法監護人簽署的柏峴화랑永久性居民身份證申請表格（ROP 3）。")),
-                ("(g) ", ("Documents in support of the child's right of abode in the BHG SAR (not required if applicant was born in the SAR).",
-                          "자녀의 특별행정구 거주권을 증명하는 서류(특별행정구에서 출생한 경우 불필요).",
-                          "證明該兒童擁有柏峴화랑特別行政區居留權的文件（如申請人在特區出生則無需提交）。"))]),
+                ("(g) ", ("Documents in support of the child's right of abode in the Baekhyeon Hwarang SAR (not required if applicant was born in Baekhyeon Hwarang).",
+                          "자녀의 백현화랑 특별행정구 거주권을 증명하는 서류(백현화랑 특별행정구에서 출생한 경우 불필요).",
+                          "證明該兒童擁有柏峴화랑特別行政區居留權的文件（如申請人在柏峴화랑出生則無需提交）。"))]),
         ],
         "means": (_PAYCOLS_IN, _ROWS_IN, _NOTE_IN, True, True),
         "collect": [_COL_IN, _COL_KDCM_CHILD],
@@ -363,29 +363,29 @@ GB_TABS = [
     },
     {
         "id": "c",
-        "title": ("Persons Aged 16 or Above (Applying outside the SAR)", "만 16세 이상(특별행정구 밖 신청)", "十六歲或以上人士（於特區以外地區申請）"),
+        "title": ("Persons Aged 16 or Above (Applying outside Baekhyeon Hwarang)", "만 16세 이상(백현화랑 특별행정구 밖 신청)", "十六歲或以上人士（於柏峴화랑以外地區申請）"),
         "forms": [
             (("Application form (ID 843)", "신청서(ID 843)", "申請表格（ID 843）"), None),
-            (("Fee Payment Form for BHG SAR Passport (ID 853) (For applications submitted to the Korean Diplomatic and Consular Missions)",
-              "특별행정구 여권 수수료 납부서(ID 853)(재외공관에 제출하는 신청용)",
+            (("Fee Payment Form for Baekhyeon Hwarang SAR Passport (ID 853) (For applications submitted to the Korean Diplomatic and Consular Missions)",
+              "백현화랑 특별행정구 여권 수수료 납부서(ID 853)(재외공관에 제출하는 신청용)",
               "柏峴화랑特別行政區護照費用繳費表格（ID 853）（適用於向大韓民國駐外使領館遞交的申請）"), None),
             (("Photograph", "사진", "照片"), _PHOTO3),
         ],
         "docs": [
             (("Persons aged 16 or above", "만 16세 이상", "十六歲或以上人士"), [
-                ("(a) ", ("BHG SAR permanent identity card / Acknowledgement of application for a BHG SAR permanent identity card (applicable to application submitted directly to the Immigration Department).",
-                          "특별행정구 영구 신분증 / 영구 신분증 신청 확인서(출입경사무처에 직접 제출하는 신청에 해당).",
+                ("(a) ", ("Baekhyeon Hwarang SAR permanent identity card / Acknowledgement of application for a Baekhyeon Hwarang SAR permanent identity card (applicable to application submitted directly to the Immigration Department).",
+                          "백현화랑 특별행정구 영구 신분증 / 영구 신분증 신청 확인서(출입경사무처에 직접 제출하는 신청에 해당).",
                           "柏峴화랑永久性居民身份證／「申請柏峴화랑永久性居民身份證收據」（適用於直接向入境事務處遞交的申請）。")),
-                ("(b) ", ("For first-time application for a passport, his/her previous BHG SAR Document of Identity for Visa Purposes, if any.",
-                          "여권을 처음 신청하는 경우, 이전에 발급받은 특별행정구 비자용 신분증명서(있는 경우).",
+                ("(b) ", ("For first-time application for a passport, his/her previous Baekhyeon Hwarang SAR Document of Identity for Visa Purposes, if any.",
+                          "여권을 처음 신청하는 경우, 이전에 발급받은 백현화랑 특별행정구 비자용 신분증명서(있는 경우).",
                           "首次申請護照者，其以往持有的柏峴화랑特別行政區簽證身份書（如有）。")),
                 ("(c) ", ("For application for a replacement passport, his/her previous passport.",
                           "여권 교체 발급을 신청하는 경우, 이전 여권.",
                           "申請換領護照者，其以往持有的護照。"))]),
             (_ADD1617, [("(d) ", _PARENTID),
-                        ("(e) ", ("Birth certificate (not required if the applicant was born in the SAR) to prove his/her relationship with the consenting parent, or a court order, if applicable, to prove that the consenting legal guardian concerned has custodial rights in respect of him/her.",
-                                  "동의하는 부모와의 관계를 증명하는 출생증명서(특별행정구에서 출생한 경우 불필요) 또는, 해당되는 경우 해당 법정대리인의 양육권을 증명하는 법원 명령서.",
-                                  "出生證明書（如申請人在特區出生則無需提交），以證明其與同意申請的父、母的關係；或法庭頒令（如適用），以證明有關合法監護人對其擁有管養權。")),
+                        ("(e) ", ("Birth certificate (not required if the applicant was born in Baekhyeon Hwarang) to prove his/her relationship with the consenting parent, or a court order, if applicable, to prove that the consenting legal guardian concerned has custodial rights in respect of him/her.",
+                                  "동의하는 부모와의 관계를 증명하는 출생증명서(백현화랑 특별행정구에서 출생한 경우 불필요) 또는, 해당되는 경우 해당 법정대리인의 양육권을 증명하는 법원 명령서.",
+                                  "出生證明書（如申請人在柏峴화랑出生則無需提交），以證明其與同意申請的父、母的關係；或法庭頒令（如適用），以證明有關合法監護人對其擁有管養權。")),
                         ("(f) ", (_MARRIED[0] % "(d) and (e)", _MARRIED[1] % "(d), (e)", _MARRIED[2] % "(d)及(e)"))]),
         ],
         "means": (_PAYCOLS_OUT, _ROWS_OUT, _NOTE_OUT, False, True),
@@ -394,40 +394,40 @@ GB_TABS = [
     },
     {
         "id": "d",
-        "title": ("Children Aged Under 16 (Applying outside the SAR)", "만 16세 미만 아동(특별행정구 밖 신청)", "十六歲以下兒童（於特區以外地區申請）"),
+        "title": ("Children Aged Under 16 (Applying outside Baekhyeon Hwarang)", "만 16세 미만 아동(백현화랑 특별행정구 밖 신청)", "十六歲以下兒童（於柏峴화랑以外地區申請）"),
         "forms": [
             (("Application form (ID 844)", "신청서(ID 844)", "申請表格（ID 844）"), None),
-            (("Fee Payment Form for BHG SAR Passport (ID 853) (For applications submitted to the Korean Diplomatic and Consular Missions)",
-              "특별행정구 여권 수수료 납부서(ID 853)(재외공관에 제출하는 신청용)",
+            (("Fee Payment Form for Baekhyeon Hwarang SAR Passport (ID 853) (For applications submitted to the Korean Diplomatic and Consular Missions)",
+              "백현화랑 특별행정구 여권 수수료 납부서(ID 853)(재외공관에 제출하는 신청용)",
               "柏峴화랑特別行政區護照費用繳費表格（ID 853）（適用於向大韓民國駐外使領館遞交的申請）"), None),
             (("Photograph", "사진", "照片"), _PHOTO3),
         ],
         "docs": [
             (("Children aged under 16", "만 16세 미만 아동", "十六歲以下兒童"), [
-                ("(a) ", ("The child's BHG SAR permanent identity card / Acknowledgement of application for a BHG SAR permanent identity card (applicable to application submitted directly to the Immigration Department).",
-                          "자녀의 특별행정구 영구 신분증 / 영구 신분증 신청 확인서(출입경사무처에 직접 제출하는 신청에 해당).",
+                ("(a) ", ("The child's Baekhyeon Hwarang SAR permanent identity card / Acknowledgement of application for a Baekhyeon Hwarang SAR permanent identity card (applicable to application submitted directly to the Immigration Department).",
+                          "자녀의 백현화랑 특별행정구 영구 신분증 / 영구 신분증 신청 확인서(출입경사무처에 직접 제출하는 신청에 해당).",
                           "該兒童的柏峴화랑永久性居民身份證／「申請柏峴화랑永久性居民身份證收據」（適用於直接向入境事務處遞交的申請）。")),
                 ("(b) ", _PARENTID),
-                ("(c) ", ("The child's birth certificate (not required if the child was born in the SAR) to prove the relationship between the parent and the child, or a court order, if applicable, to prove that the consenting legal guardian concerned has custodial rights in respect of the child.",
-                          "부모와 자녀의 관계를 증명하는 자녀의 출생증명서(특별행정구에서 출생한 경우 불필요) 또는, 해당되는 경우 해당 법정대리인의 양육권을 증명하는 법원 명령서.",
-                          "該兒童的出生證明書（如兒童在特區出生則無需提交），以證明父、母與該兒童的關係；或法庭頒令（如適用），以證明有關合法監護人對該兒童擁有管養權。")),
-                ("(d) ", ("For first-time application for a passport, the child's previous BHG SAR Document of Identity for Visa Purposes, if any.",
-                          "여권을 처음 신청하는 경우, 자녀가 이전에 발급받은 특별행정구 비자용 신분증명서(있는 경우).",
+                ("(c) ", ("The child's birth certificate (not required if the child was born in Baekhyeon Hwarang) to prove the relationship between the parent and the child, or a court order, if applicable, to prove that the consenting legal guardian concerned has custodial rights in respect of the child.",
+                          "부모와 자녀의 관계를 증명하는 자녀의 출생증명서(백현화랑 특별행정구에서 출생한 경우 불필요) 또는, 해당되는 경우 해당 법정대리인의 양육권을 증명하는 법원 명령서.",
+                          "該兒童的出生證明書（如兒童在柏峴화랑出生則無需提交），以證明父、母與該兒童的關係；或法庭頒令（如適用），以證明有關合法監護人對該兒童擁有管養權。")),
+                ("(d) ", ("For first-time application for a passport, the child's previous Baekhyeon Hwarang SAR Document of Identity for Visa Purposes, if any.",
+                          "여권을 처음 신청하는 경우, 자녀가 이전에 발급받은 백현화랑 특별행정구 비자용 신분증명서(있는 경우).",
                           "首次申請護照者，該兒童以往持有的柏峴화랑特別行政區簽證身份書（如有）。")),
                 ("(e) ", ("For application for a replacement passport, the child's previous passport.",
                           "여권 교체 발급을 신청하는 경우, 자녀의 이전 여권.",
                           "申請換領護照者，該兒童以往持有的護照。"))]),
             (("Additional requirements for children aged under 11", "만 11세 미만 아동의 추가 요건", "十一歲以下兒童的額外規定"), [
-                ("(f) ", ("School document (e.g. a Student's Handbook bearing the child's name, date of birth and photograph that should be certified by a chop of the school) or other proof of identity is required. If such school document or proof of identity is not available, a completed Form for Countersignature (ID 641) together with a photocopy of the countersignatory's BHG SAR identity card or valid travel document(s) bearing the countersignatory's signature.",
-                          "학교 서류(자녀의 이름·생년월일·사진이 있고 학교 직인이 찍힌 학생 수첩 등) 또는 기타 신원 증명서가 필요합니다. 이러한 서류가 없는 경우, 작성한 확인 서명 서식(ID 641)과 서명 확인인의 서명이 있는 특별행정구 신분증 또는 유효한 여행증명서 사본을 제출합니다.",
+                ("(f) ", ("School document (e.g. a Student's Handbook bearing the child's name, date of birth and photograph that should be certified by a chop of the school) or other proof of identity is required. If such school document or proof of identity is not available, a completed Form for Countersignature (ID 641) together with a photocopy of the countersignatory's Baekhyeon Hwarang SAR identity card or valid travel document(s) bearing the countersignatory's signature.",
+                          "학교 서류(자녀의 이름·생년월일·사진이 있고 학교 직인이 찍힌 학생 수첩 등) 또는 기타 신원 증명서가 필요합니다. 이러한 서류가 없는 경우, 작성한 확인 서명 서식(ID 641)과 서명 확인인의 서명이 있는 백현화랑 특별행정구 신분증 또는 유효한 여행증명서 사본을 제출합니다.",
                           "須提交學校證明文件（例如載有兒童姓名、出生日期及照片，並經學校蓋印認證的學生手冊）或其他身份證明文件。若未能提供該等學校證明文件或身份證明，則須提交已填妥的副署事項表格（ID 641），以及載有副署人簽名的副署人柏峴화랑身份證或有效旅行證件副本。"))]),
-            (("Additional requirements for children aged under 11 who do not hold BHG SAR permanent identity cards", "특별행정구 영구 신분증이 없는 만 11세 미만 아동의 추가 요건", "未持有柏峴화랑永久性居民身份證的十一歲以下兒童的額外規定"), [
+            (("Additional requirements for children aged under 11 who do not hold Baekhyeon Hwarang SAR permanent identity cards", "백현화랑 특별행정구 영구 신분증이 없는 만 11세 미만 아동의 추가 요건", "未持有柏峴화랑永久性居民身份證的十一歲以下兒童的額外規定"), [
                 ("(g) ", ("An additional photograph (four identical photographs should be submitted in total).", "사진 1장 추가(동일한 사진 총 4장 제출).", "額外照片一張（合共須提交四張相同的照片）。")),
-                ("(h) ", ("An application form (ROP 144) for a BHG SAR permanent identity card, duly completed and signed by the parent or legal guardian of the child.",
-                          "작성하고 부모 또는 법정대리인이 서명한 특별행정구 영구 신분증 신청서(ROP 144).",
+                ("(h) ", ("An application form (ROP 144) for a Baekhyeon Hwarang SAR permanent identity card, duly completed and signed by the parent or legal guardian of the child.",
+                          "작성하고 부모 또는 법정대리인이 서명한 백현화랑 특별행정구 영구 신분증 신청서(ROP 144).",
                           "已填妥並由兒童的父、母或合法監護人簽署的柏峴화랑永久性居民身份證申請表格（ROP 144）。")),
-                ("(i) ", ("Documents in support of the child's right of abode in the BHG SAR.",
-                          "자녀의 특별행정구 거주권을 증명하는 서류.",
+                ("(i) ", ("Documents in support of the child's right of abode in the Baekhyeon Hwarang SAR.",
+                          "자녀의 백현화랑 특별행정구 거주권을 증명하는 서류.",
                           "證明該兒童擁有柏峴화랑特別行政區居留權的文件。"))]),
         ],
         "means": (_PAYCOLS_OUT, _ROWS_OUT, _NOTE_OUT, False, True),
