@@ -7,6 +7,7 @@
 html{font-size:var(--fs)}
 body{margin:0;background:var(--bg);color:var(--ink);line-height:1.55;
   font-family:-apple-system,"Segoe UI","Noto Sans KR","Noto Sans TC","PingFang TC","Microsoft JhengHei","Malgun Gothic",Arial,sans-serif}
+body.lang-hans{font-family:-apple-system,"Segoe UI","Noto Sans SC","PingFang SC","Microsoft YaHei",Arial,sans-serif}
 body.size-0{--fs:14px} body.size-2{--fs:18.5px}
 a{color:var(--navy);text-decoration:none} a:hover{text-decoration:underline;color:var(--gold-d)}
 a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #f0a500;outline-offset:2px}
@@ -16,7 +17,6 @@ ul{list-style:none;margin:0;padding:0}
 .skip{position:absolute;left:-999px;top:0;background:#000;color:#fff;padding:8px 12px;z-index:100}
 .skip:focus{left:0}
 
-.fiction{background:#fff6d6;border-bottom:1px solid #e6d28a;color:#5b4a00;font-size:.8125rem;text-align:center;padding:4px 0}
 
 /* top bar */
 .bar{background:var(--soft);border-bottom:1px solid var(--line);font-size:.8125rem}
@@ -110,7 +110,6 @@ ul{list-style:none;margin:0;padding:0}
 .fmenu{display:flex;flex-wrap:wrap;gap:6px 0}
 .fmenu li{padding:0 14px;border-left:1px solid #aaa} .fmenu li:first-child{padding-left:0;border-left:0}
 .geo{margin:14px 0 4px;color:var(--muted)}
-.disc{margin:6px 0;color:#5b4a00;background:#fff6d6;border:1px solid #e6d28a;padding:8px 12px;border-radius:4px}
 .copy{margin:8px 0 0;color:var(--muted)}
 
 #toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#222;color:#fff;padding:10px 18px;border-radius:6px;z-index:200;box-shadow:0 4px 14px rgba(0,0,0,.35)}

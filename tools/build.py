@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Static site generator for the BHG SAR Government homepage (fictional worldbuilding project).
+"""Static site generator for the BHG SAR Government homepage .
 
 Layout and information architecture follow the GovHK residents homepage
 (header / language bar / search / mega menu / banner / quick links / online services /
 forms / information & services / guidebooks / features / social groups / footer).
-No HKSAR assets, logos or text are reused; all content is original and fictional.
+No HKSAR assets, logos or text are reused; all content is original.
 
 Usage: python3 tools/build.py   ->  writes index.html, en/, ko/, zh/
 """
@@ -15,20 +15,47 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LANGS = [  # code, folder, <html lang>, label shown in the language bar
     ("en", "en", "en", "English"),
     ("ko", "ko", "ko", "한국어"),
-    ("zh", "zh", "zh-Hant", "繁體中文"),
+    ("hant", "zh-hant", "zh-Hant", "繁體中文"),
+    ("hans", "zh-hans", "zh-Hans", "简体中文"),
 ]
-IDX = {"en": 0, "ko": 1, "zh": 2}
+IDX = {"en": 0, "ko": 1, "hant": 2, "hans": 3}  # hans is derived from the Traditional text via T2S
+
+# Traditional -> Simplified (char map generated once with OpenCC t2s; phrases override HK-style terms)
+T2S = {
+    "來":"来","個":"个","們":"们","傭":"佣","傳":"传","僱":"雇","兒":"儿","內":"内",
+    "冊":"册","別":"别","劃":"划","動":"动","務":"务","勞":"劳","區":"区","員":"员",
+    "問":"问","單":"单","園":"园","圖":"图","執":"执","報":"报","場":"场","婦":"妇",
+    "學":"学","專":"专","尋":"寻","對":"对","峴":"岘","帶":"带","廢":"废","徑":"径",
+    "徵":"征","憲":"宪","應":"应","換":"换","據":"据","數":"数","於":"于","書":"书",
+    "會":"会","業":"业","構":"构","樂":"乐","樓":"楼","橫":"横","檔":"档","權":"权",
+    "氣":"气","無":"无","熱":"热","營":"营","獎":"奖","環":"环","療":"疗","發":"发",
+    "眾":"众","碼":"码","礙":"碍","稅":"税","簡":"简","簽":"签","約":"约","結":"结",
+    "統":"统","網":"网","繳":"缴","聞":"闻","聯":"联","聲":"声","職":"职","與":"与",
+    "舉":"举","處":"处","覽":"览","計":"计","訊":"讯","訓":"训","記":"记","訪":"访",
+    "設":"设","診":"诊","註":"注","試":"试","話":"话","語":"语","說":"说","課":"课",
+    "調":"调","請":"请","證":"证","護":"护","財":"财","責":"责","貿":"贸","資":"资",
+    "質":"质","載":"载","連":"连","進":"进","選":"选","醫":"医","長":"长","門":"门",
+    "開":"开","關":"关","隱":"隐","電":"电","頁":"页","預":"预","題":"题","額":"额",
+    "館":"馆","駕":"驾","駛":"驶","體":"体","點":"点",
+}
+T2S_PHRASES = [
+    ("流動通訊", "移动通信"), ("流動應用程式", "移动应用程序"), ("開放數據入門網站", "开放数据门户网站"),
+    ("入門網站", "门户网站"), ("資訊保安", "信息安全"), ("資訊", "信息"), ("數碼", "数字"),
+    ("通訊", "通信"), ("智方便", "智方便"),
+]
+
+
+def s2(text):
+    for a, b in T2S_PHRASES:
+        text = text.replace(a, b)
+    return "".join(T2S.get(ch, ch) for ch in text)
+
 
 # --------------------------------------------------------------------------- UI strings
 UI = {
     "site_title": ("Baekhyeon Hwarang SAR Government", "백현화랑특별행정구 정부", "柏峴화랑特別行政區政府"),
     "site_short": ("GovBHG", "정부포털 BHG", "BHG政府入門網站"),
     "region": ("Baekhyeon Hwarang Special Administrative Region", "백현화랑특별행정구", "柏峴화랑特別行政區"),
-    "notice": (
-        "Fictional worldbuilding project — not an official website of any real government.",
-        "가상 세계관 프로젝트입니다 — 실제 어떤 정부의 공식 웹사이트도 아닙니다.",
-        "此為虛構世界觀創作專案，並非任何真實政府的官方網站。",
-    ),
     "skip": ("Skip to main content", "본문 바로가기", "跳至主要內容"),
     "text_size": ("Text Size", "글자 크기", "字體大小"),
     "languages": ("Languages", "언어", "語言"),
@@ -60,20 +87,9 @@ UI = {
     "top": ("Back To Top", "맨 위로", "返回頁首"),
     "footer_menu": ("Footer Menu", "하단 메뉴", "頁尾選單"),
     "copyright": (
-        "© 2026 Baekhyeon Hwarang SAR Government (fictional). All content on this site is original and imaginary.",
-        "© 2026 백현화랑특별행정구 정부(가상). 이 사이트의 모든 내용은 창작된 허구입니다.",
-        "© 2026 柏峴화랑特別行政區政府（虛構）。本網站所有內容均為原創虛構。",
-    ),
-    "disclaimer_long": (
-        "This website is a fictional worldbuilding project. The Baekhyeon Hwarang Special Administrative Region does "
-        "not exist as a legal or administrative entity. Nothing here is an official notice of the Republic of Korea, "
-        "Seongnam City, the Hong Kong SAR Government or any other real authority, and no real government service is "
-        "offered through this site.",
-        "이 웹사이트는 가상 세계관 프로젝트입니다. 백현화랑특별행정구는 법적·행정적으로 존재하는 기관이 아니며, "
-        "대한민국, 성남시, 홍콩특별행정구 정부 등 실제 기관의 공식 안내가 아닙니다. 이 사이트를 통해 제공되는 "
-        "실제 정부 서비스는 없습니다.",
-        "本網站為虛構世界觀創作專案。柏峴화랑特別行政區並非現實中的法律或行政實體；本網站內容並非大韓民國、城南市、"
-        "香港特別行政區政府或任何真實機構的官方公告，亦不提供任何真實的政府服務。",
+        "© 2026 Baekhyeon Hwarang SAR Government. All rights reserved.",
+        "© 2026 백현화랑특별행정구 정부. 모든 권리 보유.",
+        "© 2026 柏峴화랑特別行政區政府。版權所有。",
     ),
     "geo": (
         "Located in the Baekhyeon Maeul Complexes 3 and 4, Seongnam.",
@@ -238,8 +254,13 @@ FOOTER = [
 ]
 
 
+def g(tup, i):
+    """Raw (unescaped) text for language index i; index 3 = Simplified, derived from Traditional."""
+    return s2(tup[2]) if i == 3 else tup[i]
+
+
 def t(tup, i):
-    return html.escape(tup[i])
+    return html.escape(g(tup, i))
 
 
 def ph(label, i, cls="", extra=""):
@@ -296,23 +317,22 @@ def build_page(code, folder, htmllang, i):
     tiles = "".join(
         f'<li><a href="#" data-s><span class="ico" aria-hidden="true">{t(lab, i)[0]}</span>{t(lab, i)}</a></li>'
         for _, lab, _ in RES
-    ) + f'<li><a href="#" data-s><span class="ico" aria-hidden="true">★</span>{html.escape(("Government Websites & Officers", "정부 웹사이트 및 담당 부서", "政府網站及人員")[i])}</a></li>'
+    ) + f'<li><a href="#" data-s><span class="ico" aria-hidden="true">★</span>{t(("Government Websites & Officers", "정부 웹사이트 및 담당 부서", "政府網站及人員"), i)}</a></li>'
 
     footer_html = "".join(f"<li>{ph(x, i)}</li>" for x in FOOTER)
 
-    title = f'{UI["site_short"][i]} — {UI["site_title"][i]}'
+    title = f'{g(UI["site_short"], i)} — {g(UI["site_title"], i)}'
     page = f"""<!doctype html>
 <html lang="{htmllang}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{html.escape(title)}</title>
-<meta name="description" content="{u('notice')}">
+<meta name="description" content="{u('site_title')}">
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../assets/site.css">
 </head>
 <body class="lang-{code}" data-toast="{u('toast')}" data-nores="{u('search_none')}">
-<div class="fiction"><div class="wrap">{u('notice')}</div></div>
 <a class="skip" href="#main">{u('skip')}</a>
 
 <header class="top">
@@ -350,7 +370,7 @@ def build_page(code, folder, htmllang, i):
 </section>
 
 <main id="main">
-  <h1 class="vh">{html.escape(UI['site_title'][i])}</h1>
+  <h1 class="vh">{u('site_title')}</h1>
 
   <section class="wrap hero" aria-label="{u('banner')}" aria-roledescription="carousel">
     <div class="banner">
@@ -400,7 +420,6 @@ def build_page(code, folder, htmllang, i):
     <p class="toplink"><a href="#top" id="totop">▲ {u('top')}</a></p>
     <nav aria-label="{u('footer_menu')}"><ul class="fmenu">{footer_html}</ul></nav>
     <p class="geo">{u('geo')}</p>
-    <p class="disc">{u('disclaimer_long')}</p>
     <p class="copy">{u('copyright')}</p>
   </div>
 </footer>
@@ -423,13 +442,14 @@ ROOT_INDEX = """<!doctype html>
 <script>
 (function () {
   var l = (navigator.language || "en").toLowerCase(), d = "en/";
-  if (l.indexOf("ko") === 0) d = "ko/"; else if (l.indexOf("zh") === 0) d = "zh/";
+  if (l.indexOf("ko") === 0) d = "ko/";
+  else if (l.indexOf("zh") === 0) d = /zh-(cn|sg|hans)/.test(l) ? "zh-hans/" : "zh-hant/";
   location.replace(d);
 })();
 </script>
 </head>
 <body style="font-family:sans-serif;padding:2em">
-<p><a href="en/">English</a> · <a href="ko/">한국어</a> · <a href="zh/">繁體中文</a></p>
+<p><a href="en/">English</a> · <a href="ko/">한국어</a> · <a href="zh-hant/">繁體中文</a> · <a href="zh-hans/">简体中文</a></p>
 </body>
 </html>
 """
