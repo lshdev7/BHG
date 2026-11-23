@@ -615,7 +615,6 @@ def esvc_cfg(key, i, cur):
     }[key]()
     cfg = loc(raw, i)
     cfg["L"] = loc(E.L, i)
-    cfg["notice"] = g(E.NOTICE, i)
     cfg["cur"] = E.CUR
     cfg.setdefault("offices", loc(E.OFFICES, i))
     return cfg

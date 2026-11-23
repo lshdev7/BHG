@@ -370,7 +370,6 @@ a.idl{color:var(--link);text-decoration:underline}
 
 /* ---------- e-services ---------- */
 .svc{max-width:860px}
-.svc-notice{background:#fff7e0;border:1px solid #e9cf86;border-left:5px solid #d99a00;padding:10px 14px;font-size:13.5px;line-height:1.45;margin:0 0 16px;color:#4d3b00}
 .svc .stepbox{background:#fff;padding:24px 26px 20px;margin-bottom:16px;font-size:15px}
 .svc .stepbox.narrow{max-width:520px}
 .svc .stepbox h2{font-size:21px;margin:0 0 12px}
@@ -422,4 +421,4 @@ a.idl{color:var(--link);text-decoration:underline}
 .welcome{margin:0 0 12px;font-weight:700}
 .msgs,.svcl{list-style:disc;margin:0 0 12px 22px;line-height:1.7}.svcl a{color:var(--link);text-decoration:underline}
 @media (max-width:700px){.grid{grid-template-columns:1fr}.svc .stepbox{padding:18px 14px}.review{grid-template-columns:1fr}.review dt{border-bottom:0}}
-@media print{.topbar,.ihead,.bc,.foot,.svc-notice,.prog,.nav,.skip{display:none!important}.svc .stepbox{box-shadow:none}}
+@media print{.topbar,.ihead,.bc,.foot,.prog,.nav,.skip{display:none!important}.svc .stepbox{box-shadow:none}}

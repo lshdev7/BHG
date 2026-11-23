@@ -4,12 +4,6 @@ build.py localises every 3-tuple of strings. Currency: Baekhyeon Hwarang Dollar 
 
 CUR = "BH$"
 
-NOTICE = (
-    "<strong>Simulated service.</strong> Information entered here is processed only in your browser. It is not sent to any server and is not stored (appointment bookings are kept in this browser only). Please do not enter real personal or payment information.",
-    "<strong>모의 서비스입니다.</strong> 이곳에 입력한 정보는 사용자의 브라우저 안에서만 처리되며 어떤 서버로도 전송·저장되지 않습니다(예약 내역은 이 브라우저에만 보관됩니다). 실제 개인정보나 결제정보는 입력하지 마세요.",
-    "<strong>模擬服務。</strong>你在此輸入的資料只會在你的瀏覽器內處理，不會傳送至任何伺服器，亦不會被儲存（預約紀錄只會保留在此瀏覽器內）。請勿輸入真實的個人資料或付款資料。",
-)
-
 L = {
     "next": ("Next", "다음", "下一步"), "back": ("Back", "이전", "上一步"), "submit": ("Submit", "제출", "遞交"),
     "pay": ("Pay", "결제", "付款"), "print": ("Print", "인쇄", "列印"), "again": ("Start a new one", "새로 시작", "重新開始"),
@@ -43,7 +37,7 @@ L = {
     "trn": ("Transaction Reference Number (TRN)", "거래 참조번호(TRN)", "交易參考編號（TRN）"),
     "paid": ("Amount paid", "납부 금액", "已繳費用"), "total": ("Total", "합계", "總額"),
     "payMethod": ("Payment method", "결제 수단", "付款方法"),
-    "payRedirect": ("In the real service you would be taken to the payment provider here. In this simulation, press Pay to continue.", "실제 서비스에서는 이 단계에서 결제 대행사 화면으로 이동합니다. 이 모의 서비스에서는 결제 버튼을 눌러 계속하세요.", "在實際服務中，你會在此被帶往付款服務供應商的頁面。在此模擬服務中，請按「付款」繼續。"),
+    "payRedirect": ("You will be taken to the payment provider to complete the payment. Press Pay to continue.", "결제 대행사 화면에서 결제를 마치게 됩니다. 계속하려면 결제 버튼을 누르세요.", "你會被帶往付款服務供應商的頁面完成付款。請按「付款」繼續。"),
     "search": ("Search", "조회", "查詢"), "updated": ("Last updated", "최종 갱신", "最後更新"), "remark": ("Remarks", "비고", "備註"),
     "login": ("Login", "로그인", "登入"), "logout": ("Logout", "로그아웃", "登出"),
     "makeAppt": ("Make an appointment", "예약하기", "預約"), "findAppt": ("Change, cancel or enquire about an appointment", "예약 변경·취소·조회", "更改、取消或查詢預約"),

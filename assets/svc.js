@@ -1,5 +1,4 @@
-/* GovBHG e-services: client-side only. Nothing typed here is sent anywhere; only appointment bookings are
-   kept in this browser's localStorage so that the "change / cancel / enquire" tab can find them. */
+/* GovBHG e-services (client-side). Appointment bookings are kept in localStorage for the change / cancel / enquire tab. */
 (function () {
   "use strict";
   var root = document.getElementById("svc");
@@ -419,7 +418,7 @@
         var d = today();
         S.ref = cfg.prefix + d.getFullYear() + z(d.getMonth() + 1) + z(d.getDate()) + rnd(6);
         S.when = fmtNow();
-        // never keep secrets around once the "payment" is simulated
+        // do not keep payment secrets in memory after submission
         ["card", "cardname", "exp", "cvv", "opsno", "opspw", "pw", "pw2", "pass"].forEach(function (k) { delete S.vals[k]; });
         S.done = true;
         if (cfg.onDone) cfg.onDone(S);
@@ -641,7 +640,6 @@
   }
 
   /* ------------------------------------------------------------------ start */
-  root.appendChild(el("div", { cls: "svc-notice", html: C.notice }));
   if (C.type === "wizard") Wizard(C);
   else if (C.type === "booking") { Booking(C); }
   else if (C.type === "status") Status(C);
