@@ -173,6 +173,21 @@
     a.addEventListener("click", function () { a.href = SH[a.getAttribute("data-share")] + encodeURIComponent(location.href); });
   });
 
+  /* ---- FAQ accordion ---- */
+  $$(".faq-q").forEach(function (q) {
+    q.addEventListener("click", function () {
+      var open = q.getAttribute("aria-expanded") === "true";
+      q.setAttribute("aria-expanded", String(!open));
+      q.nextElementSibling.hidden = open;
+    });
+  });
+  $$("[data-faq]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var open = b.getAttribute("data-faq") === "open";
+      $$(".faq-q").forEach(function (q) { q.setAttribute("aria-expanded", String(open)); q.nextElementSibling.hidden = !open; });
+    });
+  });
+
   var tt = $("#totop");
   if (tt) tt.addEventListener("click", function (e) { e.preventDefault(); window.scrollTo(0, 0); });
 })();

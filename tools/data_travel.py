@@ -5,36 +5,37 @@
 # --------------------------------------------------------------------------- travel documents topic page
 TD_BANNER = ("Information for Application for Baekhyeon Hwarang SAR Passport", "백현화랑 특별행정구 여권 신청 안내", "申請柏峴화랑特別行政區護照資料")
 
+_P = "P:residents/immigration/traveldoc/"
 TD_COMMON = [  # (slug, title) shared link rows
-    ("faq", ("Frequently Asked Questions", "자주 묻는 질문", "常見問題")),
-    ("fees", ("Fees", "수수료", "費用")),
-    ("branches", ("Addresses and Working Hours of Branch Offices", "지소 주소 및 근무 시간", "分區辦事處地址及辦公時間")),
-    ("hq", ("Addresses and Working Hours of Offices at Headquarters", "본부 사무실 주소 및 근무 시간", "總部辦事處地址及辦公時間")),
-    ("lost", ("What to do if You Lose Your Identity Card and Baekhyeon Hwarang SAR Travel Documents", "신분증 및 백현화랑 특별행정구 여행증명서를 분실했을 때", "遺失身份證及柏峴화랑特別行政區旅行證件時應怎麼辦")),
+    (_P + "faq", ("Frequently Asked Questions", "자주 묻는 질문", "常見問題")),
+    (_P + "fees", ("Fees", "수수료", "費用")),
+    (_P + "branches", ("Addresses and Working Hours of Branch Offices", "지소 주소 및 근무 시간", "分區辦事處地址及辦公時間")),
+    (_P + "hq", ("Addresses and Working Hours of Offices at Headquarters", "본부 사무실 주소 및 근무 시간", "總部辦事處地址及辦公時間")),
+    (_P + "lost", ("What to do if You Lose Your Identity Card and Baekhyeon Hwarang SAR Travel Documents", "신분증 및 백현화랑 특별행정구 여행증명서를 분실했을 때", "遺失身份證及柏峴화랑特別行政區旅行證件時應怎麼辦")),
 ]
 TD_GROUPS = [
     # (title, [(path-or-slug, title, is_page_path)])
     (("Passport", "여권", "護照"), [
         ("P:residents/immigration/traveldoc/passport/apply", ("Online Application", "온라인 신청", "網上申請")),
         ("P:residents/immigration/traveldoc/passport/book", ("Online Appointment Booking for Application", "온라인 신청 예약", "網上預約申請")),
-        ("aboutpassport", ("About Passport", "여권 안내", "關於護照")),
+        (_P + "aboutpassport", ("About Passport", "여권 안내", "關於護照")),
     ] + TD_COMMON + [
         ("P:residents/immigration/traveldoc/appstatus", ("Online Travel Document Application Status Enquiry", "여행증명서 신청 현황 온라인 조회", "網上查詢旅行證件申請進度")),
     ]),
     (("Document of Identity for Visa Purposes", "비자용 신분증명서", "簽證身份書"), [
         ("P:residents/immigration/traveldoc/passport/book", ("Online Appointment Booking for Application", "온라인 신청 예약", "網上預約申請")),
-        ("aboutdocid", ("About Document of Identity for Visa Purposes", "비자용 신분증명서 안내", "關於簽證身份書")),
+        (_P + "aboutdocid", ("About Document of Identity for Visa Purposes", "비자용 신분증명서 안내", "關於簽證身份書")),
     ] + TD_COMMON[1:] + [
         ("P:residents/immigration/traveldoc/appstatus", ("Online Travel Document Application Status Enquiry", "여행증명서 신청 현황 온라인 조회", "網上查詢旅行證件申請進度")),
     ]),
     (("Re-entry Permit", "재입경 허가증", "回港證"), [
         ("P:residents/immigration/traveldoc/passport/book", ("Online Appointment Booking for Application", "온라인 신청 예약", "網上預約申請")),
-        ("aboutreentry", ("About Re-entry Permit", "재입경 허가증 안내", "關於回港證")),
+        (_P + "aboutreentry", ("About Re-entry Permit", "재입경 허가증 안내", "關於回港證")),
     ] + TD_COMMON[1:] + [
         ("P:residents/immigration/traveldoc/appstatus", ("Online Travel Document Application Status Enquiry", "여행증명서 신청 현황 온라인 조회", "網上查詢旅行證件申請進度")),
     ]),
     (("Seaman's Identity Book", "선원 신분증", "海員身份證"), [
-        ("aboutseaman", ("About Seaman's Identity Book", "선원 신분증 안내", "關於海員身份證")),
+        (_P + "aboutseaman", ("About Seaman's Identity Book", "선원 신분증 안내", "關於海員身份證")),
     ] + TD_COMMON[1:4]),
 ]
 TD_BLURB = {  # short descriptions shown in the accordion
@@ -178,7 +179,7 @@ STATUS_BLOCKS = [
            "2026년 1월 1일 이후 제출한 백현화랑 특별행정구 여행증명서 신청은 \"BH 스마트\"에서도 현황을 조회할 수 있습니다. \"BH 스마트\" 계정을 등록하고 이용자 권한 부여를 하면 \"개인 비서\" 페이지의 \"현황\"에서 신청 현황을 볼 수 있습니다. 최신 정보를 받으려면 \"BH 스마트\" 계정이 유효한 상태여야 합니다.",
            "2026年1月1日或以後遞交的柏峴화랑特別行政區旅行證件申請，亦可透過「BH智方便」查詢申請進度。登記「BH智方便」帳戶並提供用戶授權後，你可在「個人助理」頁面的「進度」中查看申請進度。為確保你能收到最新資料，你的「BH智方便」帳戶必須保持有效。")),
     ("link", ("Details on “Personal Assistant” of “BH Smart” and How to Provide User Authorisation", "\"BH 스마트\" \"개인 비서\" 상세 안내 및 이용자 권한 부여 방법", "「BH智方便」「個人助理」詳情及如何提供用戶授權"), "bhsmart"),
-    ("btn", STATUS_TITLE, "apply"),
+    ("btn", STATUS_TITLE, "tdstatus"),
     ("h2", ("Assistance and Further Information", "지원 및 상세 정보", "支援及詳細資料")),
     ("p", ("If you need technical assistance in using the online service, you can contact the Immigration e-Services Hotline during service hours.",
            "온라인 서비스 이용 중 기술 지원이 필요하면 서비스 운영 시간에 출입경사무처 전자서비스 상담 창구로 문의하세요.",

@@ -34,6 +34,8 @@ UI = {
     "check": ("Check it Out", "함께 보기", "精選推介"),
     "social": ("Social Groups", "사회 그룹", "社群"),
     "top": ("Back To Top", "맨 위로", "返回頁首"),
+    "expand_all": ("Expand All", "모두 펼치기", "全部展開"),
+    "collapse_all": ("Collapse All", "모두 접기", "全部收合"),
     "prev": ("Previous", "이전", "上一頁"),
     "next": ("Next", "다음", "下一頁"),
     "helpful": ("Found this page helpful?", "이 페이지가 도움이 되었나요?", "本頁內容對你有幫助嗎？"),
@@ -516,7 +518,7 @@ def _pp():
         "Passport fee is payable at the time of application by paying online through the online payment service or by credit card (VISA, Mastercard and JCB only).",
         "여권 수수료는 신청 시 온라인 결제 서비스 또는 신용카드(VISA, Mastercard, JCB만 가능)로 납부합니다.",
         "護照費用須於遞交網上申請時，透過網上繳費服務或信用卡（只接受VISA、萬事達卡及JCB）繳付。")))
-    P.append(B("link", ("FAQs about Online Payment Service", "온라인 결제 서비스 자주 묻는 질문", "網上付款常見問題"), "faq"))
+    P.append(B("link", ("FAQs about Online Payment Service", "온라인 결제 서비스 자주 묻는 질문", "網上付款常見問題"), "payfaq"))
     P.append(B("link", ("More on fees for Baekhyeon Hwarang SAR Passport", "백현화랑 특별행정구 여권 수수료 안내", "更多關於柏峴화랑特別行政區護照的申請費用資料"), "fees"))
     P.append(B("p", (
         "The collection of fees does not constitute any assurance that the passport application will be approved.",
@@ -565,7 +567,7 @@ def _pp():
         "일반 문의는 공휴일을 제외한 월~금요일 근무 시간에 출입경사무처로 하시기 바랍니다.",
         "一般查詢可於辦公時間（星期一至五，公眾假期除外）向入境事務處查詢。")))
     P.append(B("p", ("For details of this service, please visit the FAQs.", "이 서비스에 대한 자세한 내용은 자주 묻는 질문을 참고하세요.", "有關此服務的詳細資料，可以瀏覽常見問題。")))
-    P.append(B("link", ("FAQs about Application for Baekhyeon Hwarang SAR Passport through the Internet", "인터넷 백현화랑 특별행정구 여권 신청 자주 묻는 질문", "透過互聯網申請柏峴화랑特別行政區護照的常見問題"), "faq"))
+    P.append(B("link", ("FAQs about Application for Baekhyeon Hwarang SAR Passport through the Internet", "인터넷 백현화랑 특별행정구 여권 신청 자주 묻는 질문", "透過互聯網申請柏峴화랑特別行政區護照的常見問題"), "passfaq"))
     return P
 
 
@@ -578,16 +580,25 @@ PASSPORT_RELATED = [
 ]
 
 # Leaf pages under a subtopic: (cat, sub) -> [(leaf_slug, title), ...]
+import data_info as _I  # noqa: E402
+
 LEAVES = {
     ("immigration", "traveldoc"): [
         ("passport", ("Baekhyeon Hwarang SAR Passport", "백현화랑 특별행정구 여권", "柏峴화랑特別行政區護照")),
         ("appstatus", ("Online Travel Document Application Status Enquiry", "여행증명서 신청 현황 온라인 조회", "網上查詢旅行證件申請進度")),
+        ("photo", _I.PHOTO_TITLE), ("faq", _I.FAQ_TITLE), ("fees", _I.FEES_TITLE), ("kiosk", _I.KIOSK_TITLE),
+        ("branches", _I.BRANCH_TITLE), ("hq", _I.HQ_TITLE),
+        ("aboutpassport", _I.ABOUT_PASSPORT_TITLE), ("aboutdocid", _I.ABOUT_DOCID_TITLE),
+        ("aboutreentry", _I.ABOUT_REENTRY_TITLE), ("aboutseaman", _I.ABOUT_SEAMAN_TITLE), ("lost", _I.LOST_TITLE),
     ],
     ("immigration", "idcard"): [
-        ("permid", ("Baekhyeon Hwarang SAR Identity Cards", "백현화랑 특별행정구 신분증", "柏峴화랑身份證")),
+        ("smartid", _I.SMARTID_TITLE),
+        ("permid", ("Baekhyeon Hwarang Identity Cards", "백현화랑 신분증", "柏峴화랑身份證")),
         ("abode", ("Right of Abode", "거주권", "居留權")),
         ("certentitle", ("Application for Certificate of Entitlement", "자격증명서 신청", "申請登記證")),
     ],
+    ("immigration", "nonpermanent"): [("appstatus", _I.NONPERM_TITLE)],
+    ("taxes", "etax"): [("taxcalc", _I.TAXCALC_INFO_TITLE), ("allowance", _I.ALLOWANCE_TITLE)],
 }
 # sub-leaves: (cat, sub, leaf) -> [(slug, title)]
 SUBLEAVES = {

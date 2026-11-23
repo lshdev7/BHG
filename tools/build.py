@@ -17,6 +17,9 @@ sys.path.insert(0, HERE)
 
 import data as D          # noqa: E402
 import data_travel as T   # noqa: E402
+import data_info as I     # noqa: E402
+import data_esvc as E     # noqa: E402
+import json               # noqa: E402
 from t2s_map import T2S, PHRASES  # noqa: E402
 
 LANGS = [  # code, folder, <html lang>, label
@@ -67,6 +70,43 @@ ARTICLES = {            # path -> content blocks of an article-style service pag
     TD + "/passport/book": T.BOOK_BLOCKS,
     TD + "/appstatus": T.STATUS_BLOCKS,
 }
+ETX = "residents/taxes/etax"
+PAYFAQ_PATH = "about/helpdesk/faq/payment"
+ARTICLES.update({
+    TD + "/photo": I.PHOTO, TD + "/faq": I.FAQ, TD + "/fees": I.FEES, TD + "/kiosk": I.KIOSK,
+    TD + "/branches": I.BRANCH, TD + "/hq": I.HQ, TD + "/aboutpassport": I.ABOUT_PASSPORT, TD + "/aboutdocid": I.ABOUT_DOCID,
+    TD + "/aboutreentry": I.ABOUT_REENTRY, TD + "/aboutseaman": I.ABOUT_SEAMAN, TD + "/lost": I.LOST,
+    "residents/immigration/idcard/smartid": I.SMARTID,
+    "residents/immigration/nonpermanent/appstatus": I.NONPERM,
+    ETX: I.ETAX, ETX + "/taxcalc": I.TAXCALC_INFO, ETX + "/allowance": I.ALLOWANCE,
+    PAYFAQ_PATH: I.PAYFAQ,
+})
+ESERVICES = {   # path -> (config key, title)
+    "eservices/passport-apply": ("passport", E.PASSPORT["title"]),
+    "eservices/td-booking": ("td-booking", E.booking("td")["title"]),
+    "eservices/idcard-booking": ("id-booking", E.booking("id")["title"]),
+    "eservices/td-status": ("td-status", E.TD_STATUS["title"]),
+    "eservices/app-status": ("app-status", E.VISA_STATUS["title"]),
+    "eservices/etax-login": ("etax-login", ("eTAX – Individual Tax Portal (ITP) Login", "eTAX – 개인 납세 포털(ITP) 로그인", "稅務易 – 個人稅務入門網站（ITP）登入")),
+    "eservices/etax-register": ("etax-register", E.ETAX_REGISTER["title"]),
+    "eservices/tax-payment": ("tax-payment", E.TAX_PAYMENT["title"]),
+    "eservices/tax-calc": ("tax-calc", E.TAXCALC["title"]),
+}
+BLOCK_TARGET = {
+    "apply": "eservices/passport-apply", "appointment": "eservices/td-booking", "tdstatus": "eservices/td-status",
+    "appstatussvc": "eservices/app-status", "idbook": "eservices/idcard-booking",
+    "photo": TD + "/photo", "payfaq": PAYFAQ_PATH, "passfaq": TD + "/faq", "faq": TD + "/faq", "fees": TD + "/fees",
+    "etaxlogin": "eservices/etax-login", "etaxreg": "eservices/etax-register", "taxcalc": ETX + "/taxcalc",
+    "allowance": ETX + "/allowance", "taxpay": "eservices/tax-payment",
+}
+LINK_TARGETS = {   # by English text of a "links" item
+    "More information on Baekhyeon Hwarang SAR Passport": TD + "/aboutpassport",
+    "More information on Baekhyeon Hwarang SAR Re-entry Permit": TD + "/aboutreentry",
+    "More information on Baekhyeon Hwarang SAR Document of Identity for Visa Purposes": TD + "/aboutdocid",
+    "More information on Baekhyeon Hwarang SAR Seaman's Identity Book": TD + "/aboutseaman",
+    "Addresses and working hours of Immigration Offices at Immigration Headquarters": TD + "/hq",
+    "Addresses and working hours of Immigration Offices at Immigration Branch Offices": TD + "/branches",
+}
 BOOK_PATH = TD + "/passport/book"
 GUIDE_PATH = "guidebook/passport"
 
@@ -89,7 +129,7 @@ def build_registry():
             reg(cp, kind="cat", tab=tab, cat=cslug, title=ctitle)
             for sslug, stitle in subs:
                 sp = "%s/%s" % (cp, sslug)
-                reg(sp, kind="traveldoc" if sp == TD else "sub", tab=tab, cat=cslug, sub=sslug, title=stitle)
+                reg(sp, kind="traveldoc" if sp == TD else ("service" if sp in ARTICLES else "sub"), tab=tab, cat=cslug, sub=sslug, title=stitle)
                 leaves = D.LEAVES.get((cslug, sslug), []) if tab == "residents" else []
                 for lslug, ltitle in leaves:
                     lp = "%s/%s" % (sp, lslug)
@@ -99,6 +139,11 @@ def build_registry():
                         reg(xp, kind="service" if xp in ARTICLES else "leaf2", tab=tab, cat=cslug, sub=sslug, leaf=lslug, subleaf=xslug, title=xtitle)
         reg("%s/onlineservices" % tab, kind="list", tab=tab, title=D.ONLINE_PAGE, what="online")
         reg("%s/forms" % tab, kind="list", tab=tab, title=D.FORMS_PAGE, what="forms")
+    reg(PAYFAQ_PATH, kind="service", tab="residents", title=I.PAYFAQ_TITLE)
+    for path, (key, title) in ESERVICES.items():
+        reg(path, kind="eservice", tab="residents", title=title, esvc=key)
+    for slug, title in (("itpforgot", ("Forgot ITP Password", "ITP 비밀번호 찾기", "忘記ITP密碼")), ("itpfile", ("File Tax Return", "세금 신고", "報稅"))):
+        reg("misc/%s" % slug, kind="misc", tab="residents", title=title, slug=slug)
     # generic pages for every other linked item
     items = []
     items += [(s, tt) for s, tt in D.QUICK]
@@ -112,7 +157,7 @@ def build_registry():
     for slug, title in items:
         MISC.setdefault(slug, title)
     for slug, title in MISC.items():
-        if slug in ("passport", "idcard", "etax"):
+        if slug in ("passport", "idcard", "etax", "etaxlogin", "appstatus", "taxcalc"):
             continue
         reg("misc/%s" % slug, kind="misc", tab="residents", title=title, slug=slug)
     for n, (title, _c, _k) in enumerate(D.HERO_CARDS):
@@ -140,9 +185,15 @@ def target_of(slug):
     if slug == "passport":
         return "residents/immigration/traveldoc/passport/apply"
     if slug == "idcard":
-        return "residents/immigration/idcard"
+        return "eservices/idcard-booking"
     if slug == "etax":
-        return "residents/taxes/etax"
+        return ETX
+    if slug == "etaxlogin":
+        return "eservices/etax-login"
+    if slug == "appstatus":
+        return "residents/immigration/nonpermanent/appstatus"
+    if slug == "taxcalc":
+        return ETX + "/taxcalc"
     return "misc/%s" % slug
 
 
@@ -288,11 +339,11 @@ def finish(htmltxt, cur):
     return htmltxt.replace("%ASSETS%", up + "assets/").replace("%HOME%", rel(cur, ""))
 
 
-def tail(i, cur):
+def tail(i, cur, extra=""):
     return (
         '<div id="results" class="results" hidden><div class="wrap"><h2>%s</h2><ul id="rlist"></ul></div></div>'
-        '<script>window.BHG={nores:"%s"};</script><script src="%%ASSETS%%site.js"></script></body></html>'
-        % (U("res_title", i), g(D.UI["no_res"], i))
+        '<script>window.BHG={nores:"%s"};</script><script src="%%ASSETS%%site.js"></script>%s</body></html>'
+        % (U("res_title", i), g(D.UI["no_res"], i), extra)
     )
 
 
@@ -396,11 +447,11 @@ def breadcrumb(i, cur, info):
         parts.append((rel(cur, "misc/traveldocument"), t(T.GB_CRUMBS[2][1], i)))
     else:
         parts.append((rel(cur, "" if tab == "residents" else tab), t(tl, i)))
-    if kind in ("sub", "traveldoc", "leaf", "service", "leaf2"):   # ancestors only; the page itself is the last crumb
+    if kind in ("sub", "traveldoc", "leaf", "service", "leaf2") and info.get("cat"):   # ancestors only; the page itself is the last crumb
         cp = "%s/%s" % (tab, info["cat"])
         c = find_cat(tab, info["cat"])
         parts.append((rel(cur, cp), t(c[1], i)))
-        if kind in ("leaf", "service", "leaf2"):
+        if info.get("leaf"):
             sp = "%s/%s" % (cp, info["sub"])
             st = [x for x in c[2] if x[0] == info["sub"]][0][1]
             parts.append((rel(cur, sp), t(st, i)))
@@ -452,9 +503,7 @@ def share_html(i):
 
 
 def block_href(slug, cur):
-    if slug == "appointment":
-        return rel(cur, BOOK_PATH)
-    return rel(cur, "misc/" + slug)
+    return rel(cur, BLOCK_TARGET.get(slug, "misc/" + slug))
 
 
 def render_blocks(blocks, i, cur):
@@ -484,7 +533,22 @@ def render_blocks(blocks, i, cur):
         elif k == "ulink":
             out.append('<ul class="bl"><li><a href="%s">%s</a></li></ul>' % (b[2], html.escape(g(b[1], i))))
         elif k == "links":
-            out.append('<ul class="bl">%s</ul>' % "".join('<li><a href="%s">%s</a></li>' % (rel(cur, "misc/faq"), html.escape(g(x, i))) for x in b[1]))
+            out.append('<ul class="bl">%s</ul>' % "".join('<li><a href="%s">%s</a></li>' % (rel(cur, LINK_TARGETS.get(x[0], TD + "/faq")), html.escape(g(x, i))) for x in b[1]))
+        elif k == "links2":
+            out.append('<ul class="bl">%s</ul>' % "".join('<li><a href="%s">%s</a></li>' % (block_href(slug, cur), html.escape(g(x, i))) for x, slug in b[1]))
+        elif k == "calclinks":
+            out.append('<ul class="bl yrs">%s</ul>' % "".join('<li><a href="%s">%s</a></li>' % (rel(cur, "eservices/tax-calc"), y) for y in b[1]))
+        elif k == "table":
+            head = "".join("<th>%s</th>" % html.escape(g(c, i)) for c in b[1])
+            rows = "".join("<tr>%s</tr>" % "".join("<td>%s</td>" % g(c, i) for c in r) for r in b[2])
+            out.append('<div class="tblw"><table class="dt"><thead><tr>%s</tr></thead><tbody>%s</tbody></table></div>' % (head, rows))
+        elif k == "faq":
+            items = []
+            for n, (q, a) in enumerate(b[1], 1):
+                items.append('<li><button type="button" class="faq-q" aria-expanded="false"><span>Q%d. %s</span><i class="plus"></i></button><div class="faq-a" hidden><p>%s</p></div></li>'
+                             % (n, html.escape(g(q, i)), html.escape(g(a, i))))
+            out.append('<div class="faq"><p class="faqtools"><button type="button" data-faq="open">%s +</button><button type="button" data-faq="close">%s −</button></p><ul>%s</ul></div>'
+                       % (U("expand_all", i), U("collapse_all", i), "".join(items)))
     return "".join(out)
 
 
@@ -531,12 +595,39 @@ def traveldoc_main(i, cur):
     return banner + '<ul class="acc">%s</ul>' % "".join(items) + poll(i)
 
 
+def loc(o, i):
+    """Localise every 3-tuple of strings inside a config structure."""
+    if isinstance(o, tuple) and len(o) == 3 and all(isinstance(x, str) for x in o):
+        return g(o, i)
+    if isinstance(o, (list, tuple)):
+        return [loc(x, i) for x in o]
+    if isinstance(o, dict):
+        return {k: loc(v, i) for k, v in o.items()}
+    return o
+
+
+def esvc_cfg(key, i, cur):
+    link = lambda p: rel(cur, p)
+    raw = {
+        "passport": lambda: E.PASSPORT, "td-booking": lambda: E.booking("td"), "id-booking": lambda: E.booking("id"),
+        "td-status": lambda: E.TD_STATUS, "app-status": lambda: E.VISA_STATUS, "etax-login": lambda: E.etax_login(link),
+        "etax-register": lambda: E.ETAX_REGISTER, "tax-payment": lambda: E.TAX_PAYMENT, "tax-calc": lambda: E.TAXCALC,
+    }[key]()
+    cfg = loc(raw, i)
+    cfg["L"] = loc(E.L, i)
+    cfg["notice"] = g(E.NOTICE, i)
+    cfg["cur"] = E.CUR
+    cfg.setdefault("offices", loc(E.OFFICES, i))
+    return cfg
+
+
 def inner_page(i, hl, cur, info):
     kind = info["kind"]
     tab = info.get("tab", "residents")
     title = info["title"]
     h1 = title
     main = ""
+    extra = ""
     if kind == "cat":
         subs = find_cat(tab, info["cat"])[2]
         main += boxes(subs, i, cur, "%s/%s" % (tab, info["cat"])) + poll(i)
@@ -555,6 +646,10 @@ def inner_page(i, hl, cur, info):
         main += poll(i) + related_block(i, cur)
     elif kind == "leaf2":
         main += '<div class="box"><p>%s</p></div>' % U("stub", i) + poll(i)
+    elif kind == "eservice":
+        blob = json.dumps(esvc_cfg(info["esvc"], i, cur), ensure_ascii=False).replace("</", "<\\/")
+        main += '<div id="svc" class="svc"></div><script type="application/json" id="svc-cfg">%s</script>' % blob
+        extra = '<script src="%ASSETS%svc.js"></script>'
     elif kind == "list":
         src = D.ONLINE if info["what"] == "online" else D.FORMS
         lis = "".join('<li><a href="%s">%s</a></li>' % (rel(cur, target_of(s)), t(tt, i)) for s, tt in src[tab])
@@ -570,7 +665,7 @@ def inner_page(i, hl, cur, info):
     big = " big" if kind in ("cat", "sub", "traveldoc") else ""   # GovHK shows the category title at 40px
     page += '<main id="main" class="wrap %s">%s<div class="content%s"><h1>%s%s</h1>%s</div></main>' % (
         "layout" if side else "layout noside", side, big, html.escape(g(h1, i)), svg("globepin", "h1ic"), main)
-    page += footer(i, cur) + tail(i, cur)
+    page += footer(i, cur) + tail(i, cur, extra)
     return finish(page, cur)
 
 
@@ -613,7 +708,7 @@ def gb_tab(i, cur, tab, active):
     items.append('<li><span class="gb">%s</span><span class="gd">%s</span></li>' % (
         t(("Supporting documents", "증빙서류", "證明文件"), i), "".join(docs)))
     out.append('<ul class="gl1">%s</ul>' % "".join(items))
-    out.append('<p class="gm"><a href="#">%s</a></p>' % t(T.GB_MORE["docs"], i))
+    out.append('<p class="gm"><a href="%s">%s</a></p>' % (rel(cur, TD + "/aboutpassport"), t(T.GB_MORE["docs"], i)))
     # means table
     out.append(sec_h2("means", i))
     head = '<tr><th class="clk"><span data-clock></span></th>%s</tr>' % "".join('<th class="c%d">%s</th>' % (n, t(c, i)) for n, c in enumerate(cols))
@@ -621,13 +716,13 @@ def gb_tab(i, cur, tab, active):
     for lab, marks in rows:
         body.append('<tr><th scope="row">%s</th>%s</tr>' % (t(lab, i), "".join('<td class="c%d">%s</td>' % (n, "✓" if m else "") for n, m in enumerate(marks))))
     out.append('<div class="tblw"><table class="pay"><thead>%s</thead><tbody>%s</tbody></table></div>' % (head, "".join(body)))
-    out.append('<p class="fn">%s</p><p class="fn"><a href="#">%s</a></p>' % (t(note, i), t(T.GB_MORE["faqpay"], i)))
+    out.append('<p class="fn">%s</p><p class="fn"><a href="%s">%s</a></p>' % (t(note, i), rel(cur, PAYFAQ_PATH), t(T.GB_MORE["faqpay"], i)))
     out.append('<p class="fn addr">%s<br>%s</p>' % (t(T.GB_ADDR[0], i), "<br>".join(t(x, i) for x in T.GB_ADDR[1])))
-    out.append('<p class="gm"><a href="#">%s</a></p>' % t(T.GB_MORE["means"], i))
+    out.append('<p class="gm"><a href="%s">%s</a></p>' % (rel(cur, TD + "/fees"), t(T.GB_MORE["means"], i)))
     # collection
     out.append(sec_h2("collect", i))
     out.append('<ul class="gl1">%s</ul>' % "".join('<li><span class="gb">%s</span><span class="gd">%s</span></li>' % (t(h, i), t(b, i)) for h, b in tab["collect"]))
-    out.append('<p class="gm"><a href="#">%s</a></p>' % t(T.GB_MORE["collect"], i))
+    out.append('<p class="gm"><a href="%s">%s</a></p>' % (rel(cur, TD + "/kiosk"), t(T.GB_MORE["collect"], i)))
     # processing
     out.append(sec_h2("proc", i))
     for txt, plain in tab["proc"]:
@@ -636,7 +731,7 @@ def gb_tab(i, cur, tab, active):
         else:
             first, rest = g(txt, i).split(":" if i != 2 and i != 3 else "：", 1)
             out.append('<p class="pr"><span class="note">%s%s</span>%s</p>' % (html.escape(first), ":" if i < 2 else "：", html.escape(rest)))
-    out.append('<p class="gm"><a href="#">%s</a></p>' % t(T.GB_MORE["proc"], i))
+    out.append('<p class="gm"><a href="%s">%s</a></p>' % (rel(cur, TD + "/faq"), t(T.GB_MORE["proc"], i)))
     out.append("</section>")
     return "".join(out)
 
