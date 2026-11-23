@@ -137,6 +137,42 @@
   carousel("#cards", "#cdots", null, true);
   carousel("#ftrack", "#fdots", "#fnext", false);
 
+  /* ---- accordion (travel documents) ---- */
+  $$(".acc-h").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var open = b.getAttribute("aria-expanded") === "true";
+      b.setAttribute("aria-expanded", String(!open));
+      document.getElementById(b.getAttribute("aria-controls")).hidden = open;
+    });
+  });
+
+  /* ---- guidebook tabs, live clock, share links ---- */
+  var gtabs = $$(".gtb");
+  function showTab(id) {
+    gtabs.forEach(function (b) {
+      var on = b.getAttribute("data-tab") === id;
+      b.classList.toggle("on", on); b.setAttribute("aria-selected", String(on));
+    });
+    $$(".gtab").forEach(function (p) { p.hidden = p.id !== id; });
+  }
+  gtabs.forEach(function (b) { b.addEventListener("click", function () { showTab(b.getAttribute("data-tab")); }); });
+  var clocks = $$("[data-clock]");
+  function tick() {
+    var d = new Date(), z = function (n) { return (n < 10 ? "0" : "") + n; };
+    var t = z(d.getHours()) + ":" + z(d.getMinutes()) + ":" + z(d.getSeconds());
+    clocks.forEach(function (c) { c.textContent = t; });
+  }
+  if (clocks.length) { tick(); setInterval(tick, 1000); }
+  var SH = {
+    fb: "https://www.facebook.com/sharer/sharer.php?u=", tw: "https://twitter.com/intent/tweet?url=",
+    wb: "https://service.weibo.com/share/share.php?url=", wa: "https://wa.me/?text=",
+    ln: "https://social-plugins.line.me/lineit/share?url=", wc: "https://api.qrserver.com/v1/create-qr-code/?size=240x240&data="
+  };
+  $$("[data-share]").forEach(function (a) {
+    a.target = "_blank"; a.rel = "noopener";
+    a.addEventListener("click", function () { a.href = SH[a.getAttribute("data-share")] + encodeURIComponent(location.href); });
+  });
+
   var tt = $("#totop");
   if (tt) tt.addEventListener("click", function (e) { e.preventDefault(); window.scrollTo(0, 0); });
 })();

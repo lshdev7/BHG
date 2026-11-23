@@ -543,10 +543,18 @@ def _pp():
         "Upon collection, you / the consenting parent or legal guardian, if applicable, is required to make a declaration to confirm the correctness of information furnished upon application through the Internet. For children aged below 16 and unmarried persons aged 16 or 17, the consenting parent or legal guardian must accompany the child/applicant for collection of passport in person, for appending his/her signature on the application form.",
         "수령 시 본인(해당되는 경우 동의하는 부모 또는 법정대리인)은 인터넷 신청 시 제공한 정보가 정확함을 확인하는 선서를 해야 합니다. 만 16세 미만 아동과 만 16~17세 미혼 신청인의 경우, 동의하는 부모 또는 법정대리인이 신청서에 서명하기 위해 아동·신청인과 함께 직접 방문하여 수령해야 합니다.",
         "你／同意這項申請的父、母或合法監護人在領取護照時須作出聲明，確認透過互聯網申請時所申報的資料正確無誤。如你為十六歲以下兒童或十六至十七歲的未婚人士，同意這項申請的父、母或合法監護人必須陪同該兒童／申請人親身領取護照，以便在申請書上簽署。")))
-    P.append(B("p", ("You can choose to collect the passport in person at the selected Immigration Office. The collection arrangement will be sent by Short Message Service (SMS) notification prior to the collection period. Applicant is therefore advised to provide a mobile phone number subscribed with SMS.",
-                     "선택한 출입경사무소에서 직접 여권을 수령할 수 있습니다. 수령 방법은 수령 기간 전에 문자메시지(SMS)로 안내되므로, SMS를 수신할 수 있는 휴대전화 번호를 제공해 주시기 바랍니다.",
-                     "你可選擇親身到所選定的入境事務辦事處領取護照。有關領證安排將於領證期限前以短訊方式通知，因此申請人需提供可接收短訊的流動電話號碼。")))
+    P.append(B("h3", ("Application submitted in the SAR", "특별행정구 내에서 제출한 신청", "於特區遞交申請")))
+    P.append(B("p", ("If you apply in the SAR, you can choose to collect the passport in person at the selected Immigration Office or the selected Korean Diplomatic and Consular Mission. The collection arrangement will be sent by Short Message Service (SMS) notification prior to the collection period. Applicant is therefore advised to provide a mobile phone number subscribed with SMS.",
+                     "특별행정구 내에서 신청한 경우, 선택한 출입경사무소 또는 선택한 재외공관에서 직접 여권을 수령할 수 있습니다. 수령 방법은 수령 기간 전에 문자메시지(SMS)로 안내되므로, SMS를 수신할 수 있는 휴대전화 번호를 제공해 주시기 바랍니다.",
+                     "若你在特區遞交申請，你可選擇親身到所選定的入境事務辦事處或所選定的大韓民國駐外使領館領取護照。有關領證安排將於領證期限前以短訊方式通知，因此申請人需提供可接收短訊的流動電話號碼。")))
 
+    P.append(B("h3", ("Application submitted outside the SAR", "특별행정구 밖에서 제출한 신청", "於特區以外地區遞交申請")))
+    P.append(B("p", ("If you submit your application outside the SAR, you must collect the passport in person at:", "특별행정구 밖에서 신청한 경우 다음 장소에서 직접 여권을 수령해야 합니다.", "若你在特區以外地區遞交申請，你須親身到以下地點領取護照：")))
+    P.append(B("ul", [
+        ("the Travel Documents (Issue) Section, Immigration Headquarters, Baekhyeon Hwarang Special Administrative Region; or", "백현화랑특별행정구 출입경사무처 본부 여행증명서(발급) 과, 또는", "柏峴화랑特別行政區入境事務處總部旅行證件（簽發）組；或"),
+        ("the selected Korean Diplomatic and Consular Mission.", "선택한 재외공관.", "所選定的大韓民國駐外使領館。"),
+    ]))
+    P.append(B("p", ("You are required to make a declaration upon collection to confirm the correctness of information furnished upon application through the Internet.", "수령 시 인터넷 신청 때 제출한 정보가 정확함을 확인하는 선서를 해야 합니다.", "你在領取護照時須作出聲明，確認你透過互聯網申請時所申報的資料正確無誤。")))
     P.append(B("h2", ("Support and Further Information", "지원 및 상세 정보", "支援及詳細資料")))
     P.append(B("p", (
         "If you need technical support when using the online service, please contact the e-services support of the Immigration Department.",
@@ -573,9 +581,7 @@ PASSPORT_RELATED = [
 LEAVES = {
     ("immigration", "traveldoc"): [
         ("passport", ("BHG SAR Passport", "특별행정구 여권", "柏峴화랑特別行政區護照")),
-        ("reentry", ("Re-entry Permit", "재입경 허가", "回港證")),
-        ("docid", ("Document of Identity for Visa Purposes", "비자용 신분증명서", "簽證身份書")),
-        ("appointment", ("Appointment to Apply for Travel Documents", "여행증명서 신청 예약", "預約申請旅行證件")),
+        ("appstatus", ("Online Travel Document Application Status Enquiry", "여행증명서 신청 현황 온라인 조회", "網上查詢旅行證件申請進度")),
     ],
     ("immigration", "idcard"): [
         ("permid", ("BHG SAR Identity Cards", "특별행정구 신분증", "柏峴화랑身份證")),
@@ -583,12 +589,11 @@ LEAVES = {
         ("certentitle", ("Application for Certificate of Entitlement", "자격증명서 신청", "申請登記證")),
     ],
 }
-# sub-leaves: (cat, sub, leaf) -> [(slug, title)]; the "apply" page is the full passport page
+# sub-leaves: (cat, sub, leaf) -> [(slug, title)]
 SUBLEAVES = {
     ("immigration", "traveldoc", "passport"): [
         ("apply", PASSPORT_TITLE),
-        ("fees", ("Fees for BHG SAR Passport", "특별행정구 여권 수수료", "柏峴화랑特別行政區護照費用")),
-        ("lost", ("Lost, Damaged or Defaced Passport", "분실·훼손·오손 여권", "遺失、損毀或殘破護照")),
+        ("book", ("Book Appointment to Apply for Travel Documents", "여행증명서 신청 예약", "預約申請旅行證件")),
     ],
 }
 

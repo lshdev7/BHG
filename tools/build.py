@@ -16,6 +16,7 @@ ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 
 import data as D          # noqa: E402
+import data_travel as T   # noqa: E402
 from t2s_map import T2S, PHRASES  # noqa: E402
 
 LANGS = [  # code, folder, <html lang>, label
@@ -60,6 +61,15 @@ def rel(cur, target):
     return up + target + "/"
 
 
+TD = "residents/immigration/traveldoc"
+ARTICLES = {            # path -> content blocks of an article-style service page
+    TD + "/passport/apply": D.PASSPORT_BLOCKS,
+    TD + "/passport/book": T.BOOK_BLOCKS,
+    TD + "/appstatus": T.STATUS_BLOCKS,
+}
+BOOK_PATH = TD + "/passport/book"
+GUIDE_PATH = "guidebook/passport"
+
 MISC = {}          # slug -> title tuple   (generic pages under misc/)
 PAGES = {}         # path -> dict
 
@@ -79,15 +89,14 @@ def build_registry():
             reg(cp, kind="cat", tab=tab, cat=cslug, title=ctitle)
             for sslug, stitle in subs:
                 sp = "%s/%s" % (cp, sslug)
-                reg(sp, kind="sub", tab=tab, cat=cslug, sub=sslug, title=stitle)
+                reg(sp, kind="traveldoc" if sp == TD else "sub", tab=tab, cat=cslug, sub=sslug, title=stitle)
                 leaves = D.LEAVES.get((cslug, sslug), []) if tab == "residents" else []
                 for lslug, ltitle in leaves:
                     lp = "%s/%s" % (sp, lslug)
-                    reg(lp, kind="leaf", tab=tab, cat=cslug, sub=sslug, leaf=lslug, title=ltitle)
+                    reg(lp, kind="service" if lp in ARTICLES else "leaf", tab=tab, cat=cslug, sub=sslug, leaf=lslug, title=ltitle)
                     for xslug, xtitle in D.SUBLEAVES.get((cslug, sslug, lslug), []):
                         xp = "%s/%s" % (lp, xslug)
-                        kind = "service" if xslug == "apply" else "leaf2"
-                        reg(xp, kind=kind, tab=tab, cat=cslug, sub=sslug, leaf=lslug, subleaf=xslug, title=xtitle)
+                        reg(xp, kind="service" if xp in ARTICLES else "leaf2", tab=tab, cat=cslug, sub=sslug, leaf=lslug, subleaf=xslug, title=xtitle)
         reg("%s/onlineservices" % tab, kind="list", tab=tab, title=D.ONLINE_PAGE, what="online")
         reg("%s/forms" % tab, kind="list", tab=tab, title=D.FORMS_PAGE, what="forms")
     # generic pages for every other linked item
@@ -111,6 +120,14 @@ def build_registry():
     reg("misc/advsearch", kind="misc", tab="residents", title=D.UI["adv"], slug="advsearch")
     reg("misc/guides", kind="misc", tab="residents", title=D.UI["guide"], slug="guides")
     reg("misc/apply", kind="misc", tab="residents", title=("Application through the Internet for BHG SAR Passport", "인터넷 특별행정구 여권 신청", "透過互聯網申請柏峴화랑特別行政區護照"), slug="apply")
+    reg(GUIDE_PATH, kind="guide", tab="residents", title=T.GB_TITLE)
+    for slug, title in T.GB_CRUMBS:
+        if slug != "guides":
+            reg("misc/%s" % slug, kind="misc", tab="residents", title=title, slug=slug)
+    for _gt, rows in T.TD_GROUPS:
+        for key, title in rows:
+            if not key.startswith("P:"):
+                reg("misc/%s" % key, kind="misc", tab="residents", title=title, slug=key)
     for slug, title in (("appointment", ("Make an Appointment to Apply for Travel Documents", "여행증명서 신청 예약", "預約申請旅行證件")),
                         ("photo", ("Photograph Requirements", "사진 규격", "照片規格")),
                         ("faq", ("Frequently Asked Questions", "자주 묻는 질문", "常見問題")),
@@ -318,7 +335,7 @@ def home_page(i, hl, cur, info):
     more = U("more", i)
     guides = "".join(
         '<li><a href="%s"><svg class="gi" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">%s</svg><span>%s</span><i class="gch"></i></a></li>'
-        % (rel(cur, target_of(s)), GUIDE_ICON[ic], t(tt, i)) for s, tt, ic in D.GUIDES)
+        % (rel(cur, GUIDE_PATH if s == "passport" else target_of(s)), GUIDE_ICON[ic], t(tt, i)) for s, tt, ic in D.GUIDES)
     feats = "".join(
         '<li><a href="%s"><span class="fc"><svg viewBox="0 0 48 48" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">%s</svg></span><span class="fl">%s</span></a></li>'
         % (rel(cur, target_of(s)), FEAT_ICON[ic], t(tt, i)) for s, tt, ic in D.FEATURES)
@@ -372,17 +389,22 @@ def breadcrumb(i, cur, info):
     parts = [(rel(cur, ""), U("home", i))]
     tab = info.get("tab", "residents")
     tl = dict(D.TABS)[tab]
-    parts.append((rel(cur, "" if tab == "residents" else tab), t(tl, i)))
     kind = info["kind"]
-    if kind in ("sub", "leaf", "service", "leaf2"):   # ancestors only; the page itself is the last crumb
+    if kind == "guide":
+        parts.append((rel(cur, "misc/guides"), t(T.GB_CRUMBS[0][1], i)))
+        parts.append((rel(cur, "misc/travel"), t(T.GB_CRUMBS[1][1], i)))
+        parts.append((rel(cur, "misc/traveldocument"), t(T.GB_CRUMBS[2][1], i)))
+    else:
+        parts.append((rel(cur, "" if tab == "residents" else tab), t(tl, i)))
+    if kind in ("sub", "traveldoc", "leaf", "service", "leaf2"):   # ancestors only; the page itself is the last crumb
         cp = "%s/%s" % (tab, info["cat"])
         c = find_cat(tab, info["cat"])
         parts.append((rel(cur, cp), t(c[1], i)))
         if kind in ("leaf", "service", "leaf2"):
             sp = "%s/%s" % (cp, info["sub"])
-            st = [s for s in c[2] if s[0] == info["sub"]][0][1]
+            st = [x for x in c[2] if x[0] == info["sub"]][0][1]
             parts.append((rel(cur, sp), t(st, i)))
-            if kind in ("service", "leaf2"):
+            if info.get("subleaf"):
                 lp = "%s/%s" % (sp, info["leaf"])
                 lt = dict(D.LEAVES[(info["cat"], info["sub"])])[info["leaf"]]
                 parts.append((rel(cur, lp), t(lt, i)))
@@ -402,7 +424,7 @@ def sidebar(i, cur, info):
     return '<aside class="side"><ul>%s</ul></aside>' % "".join(out)
 
 
-def poll(i):
+def poll(i, aside=False):
     return (
         '<div class="below"><div class="helpful"><strong>%s</strong>'
         '<label><input type="radio" name="h"><span class="face g"></span></label>'
@@ -417,6 +439,24 @@ def boxes(items, i, cur, base):
     return '<ul class="topics">%s</ul>' % lis
 
 
+SHARE = [("fb", "#3b5998", "f"), ("tw", "#1da1f2", "t"), ("wb", "#e6162d", "w"), ("wa", "#25d366", "w"), ("ln", "#00b900", "L"), ("wc", "#07c160", "c")]
+
+
+def share_html(i):
+    ic = []
+    for k, col, ch in SHARE:
+        ic.append('<a href="#" class="sh" data-share="%s" aria-label="%s"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="%d" fill="%s"/>'
+                  '<text x="12" y="17" text-anchor="middle" font-size="14" font-weight="700" fill="#fff" font-family="Arial">%s</text></svg></a>'
+                  % (k, k, 5 if k in ("fb", "ln") else 12, col, ch))
+    return '<div class="share"><span>%s</span>%s</div>' % (t(T.GB_SHARE, i), "".join(ic))
+
+
+def block_href(slug, cur):
+    if slug == "appointment":
+        return rel(cur, BOOK_PATH)
+    return rel(cur, "misc/" + slug)
+
+
 def render_blocks(blocks, i, cur):
     out = []
     for b in blocks:
@@ -425,16 +465,26 @@ def render_blocks(blocks, i, cur):
             out.append("<p>%s</p>" % g(b[1], i))
         elif k == "plain":
             out.append('<p class="plain">%s</p>' % g(b[1], i))
+        elif k == "strong":
+            out.append("<p><strong>%s</strong></p>" % html.escape(g(b[1], i)))
         elif k == "h2":
             out.append("<h2>%s</h2>" % html.escape(g(b[1], i)))
+        elif k == "h2id":
+            out.append('<h2 id="%s">%s</h2>' % (b[1], html.escape(g(b[2], i))))
         elif k == "h3":
             out.append("<h3>%s</h3>" % html.escape(g(b[1], i)))
         elif k in ("ol", "ul"):
             out.append("<%s>%s</%s>" % (k, "".join("<li>%s</li>" % html.escape(g(x, i)) for x in b[1]), k))
+        elif k == "olr":
+            out.append('<ol class="roman">%s</ol>' % "".join("<li>%s</li>" % html.escape(g(x, i)) for x in b[1]))
         elif k == "btn":
-            out.append('<p class="btnp"><a class="gbtn" href="%s"><span>%s</span><i class="gch2"></i></a></p>' % (rel(cur, "misc/" + b[2]), html.escape(g(b[1], i))))
+            out.append('<p class="btnp"><a class="gbtn" href="%s"><span>%s</span><i class="gch2"></i></a></p>' % (block_href(b[2], cur), html.escape(g(b[1], i))))
         elif k == "link":
-            out.append('<p class="lnk"><a href="%s">%s</a></p>' % (rel(cur, "misc/" + b[2]), html.escape(g(b[1], i))))
+            out.append('<p class="lnk"><a href="%s">%s</a></p>' % (block_href(b[2], cur), html.escape(g(b[1], i))))
+        elif k == "ulink":
+            out.append('<ul class="bl"><li><a href="%s">%s</a></li></ul>' % (b[2], html.escape(g(b[1], i))))
+        elif k == "links":
+            out.append('<ul class="bl">%s</ul>' % "".join('<li><a href="%s">%s</a></li>' % (rel(cur, "misc/faq"), html.escape(g(x, i))) for x in b[1]))
     return "".join(out)
 
 
@@ -454,30 +504,55 @@ def inner_header(i, cur, info):
     )
 
 
+def related_block(i, cur):
+    rel_links = "".join('<li><a href="%s">%s</a></li>' % (rel(cur, "misc/travelinfo"), t(x, i)) for x in T.RELATED_LINKS)
+    online = ul_links(D.ONLINE["residents"], i, cur)
+    return ('<div class="relwrap"><section class="rel"><h2>%s</h2><h3>%s</h3><ul>%s</ul></section>'
+            '<section class="rel"><h3>%s</h3><ul>%s</ul><p class="relmore"><a href="%s">%s&nbsp;&gt;</a></p></section></div>'
+            % (U("related", i), g(("Related Links", "관련 링크", "相關連結"), i), rel_links,
+               g(("Top Online Services", "인기 온라인 서비스", "常用網上服務"), i), online,
+               rel(cur, "residents/onlineservices"), U("more", i)))
+
+
+def traveldoc_main(i, cur):
+    banner = ('<a class="tdbanner" href="%s"><svg viewBox="0 0 48 48" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">%s</svg>'
+              '<span>%s</span><i class="gch3"></i></a>' % (rel(cur, GUIDE_PATH), GUIDE_ICON["passport"], t(T.TD_BANNER, i)))
+    items = []
+    for n, (gt, rows) in enumerate(T.TD_GROUPS):
+        lis = []
+        for key, title in rows:
+            href = rel(cur, key[2:]) if key.startswith("P:") else rel(cur, "misc/" + key)
+            lis.append('<li><a href="%s">%s</a></li>' % (href, t(title, i)))
+        blurb = ""
+        if gt[0] in T.TD_BLURB:
+            blurb = "<p>%s</p>" % t(T.TD_BLURB[gt[0]], i)
+        items.append('<li class="acc-i"><button type="button" class="acc-h" aria-expanded="false" aria-controls="acc%d"><span>%s</span><i class="plus"></i></button>'
+                     '<div class="acc-b" id="acc%d" hidden>%s<ul>%s</ul></div></li>' % (n, t(gt, i), n, blurb, "".join(lis)))
+    return banner + '<ul class="acc">%s</ul>' % "".join(items) + poll(i)
+
+
 def inner_page(i, hl, cur, info):
     kind = info["kind"]
     tab = info.get("tab", "residents")
     title = info["title"]
+    h1 = title
     main = ""
     if kind == "cat":
         subs = find_cat(tab, info["cat"])[2]
         main += boxes(subs, i, cur, "%s/%s" % (tab, info["cat"])) + poll(i)
+    elif kind == "traveldoc":
+        h1 = find_cat(tab, info["cat"])[1]
+        main += traveldoc_main(i, cur)
     elif kind == "sub":
+        h1 = find_cat(tab, info["cat"])[1]
         leaves = D.LEAVES.get((info["cat"], info["sub"]), []) if tab == "residents" else []
         main += (boxes(leaves, i, cur, cur) if leaves else '<div class="box"><p>%s</p></div>' % U("stub", i)) + poll(i)
     elif kind == "leaf":
         subs = D.SUBLEAVES.get((info["cat"], info["sub"], info["leaf"]), [])
         main += (boxes(subs, i, cur, cur) if subs else '<div class="box"><p>%s</p></div>' % U("stub", i)) + poll(i)
     elif kind == "service":
-        rel_links = "".join('<li><a href="%s">%s</a></li>' % (rel(cur, "misc/travelinfo"), t(x, i)) for x in D.PASSPORT_RELATED)
-        online = ul_links(D.ONLINE["residents"], i, cur)
-        main += '<div class="box article">%s</div>' % render_blocks(D.PASSPORT_BLOCKS, i, cur)
-        main += poll(i)
-        main += ('<div class="relwrap"><section class="rel"><h2>%s</h2><h3>%s</h3><ul>%s</ul></section>'
-                 '<section class="rel"><h3>%s</h3><ul>%s</ul><p class="relmore"><a href="%s">%s&nbsp;&gt;</a></p></section></div>'
-                 % (U("related", i), g(("Related Links", "관련 링크", "相關連結"), i), rel_links,
-                    g(("Top Online Services", "인기 온라인 서비스", "常用網上服務"), i), online,
-                    rel(cur, "residents/onlineservices"), U("more", i)))
+        main += share_html(i) + '<div class="box article">%s</div>' % render_blocks(ARTICLES[cur], i, cur)
+        main += poll(i) + related_block(i, cur)
     elif kind == "leaf2":
         main += '<div class="box"><p>%s</p></div>' % U("stub", i) + poll(i)
     elif kind == "list":
@@ -492,8 +567,94 @@ def inner_page(i, hl, cur, info):
     page += '<body class="inner t-%s lang-%s"><a class="skip" href="#main" id="top">%s</a>' % (tab, LANGS[i][0], U("skip", i))
     page += top_bar(i, cur) + inner_header(i, cur, info) + mega_panels(i, cur)
     page += breadcrumb(i, cur, info)
-    page += '<main id="main" class="wrap %s">%s<div class="content"><h1>%s%s</h1>%s</div></main>' % (
-        "layout" if side else "layout noside", side, html.escape(g(title, i)), svg("globepin", "h1ic"), main)
+    big = " big" if kind in ("cat", "sub", "traveldoc") else ""   # GovHK shows the category title at 40px
+    page += '<main id="main" class="wrap %s">%s<div class="content%s"><h1>%s%s</h1>%s</div></main>' % (
+        "layout" if side else "layout noside", side, big, html.escape(g(h1, i)), svg("globepin", "h1ic"), main)
+    page += footer(i, cur) + tail(i, cur)
+    return finish(page, cur)
+
+
+# ----------------------------------------------------------------------------- guidebook page
+SEC_ICON = {
+    "forms": '<rect x="9" y="5" width="26" height="36" rx="2"/><path d="M15 15h14M15 22h14M15 29h8"/><path d="M29 31l8 8M37 31l-8 8" opacity="0"/>',
+    "means": '<path d="M6 30c4-2 8-2 12 0l8 4 12-6c3-1 5 2 2 4l-14 8-14-4-6 2z"/><circle cx="31" cy="14" r="8"/><path d="M31 10v8M28 12h6"/>',
+    "collect": '<path d="M24 6a12 12 0 0112 12c0 9-12 22-12 22S12 27 12 18A12 12 0 0124 6z"/><circle cx="24" cy="18" r="4"/>',
+    "proc": '<circle cx="24" cy="24" r="17"/><path d="M24 12v13l9 5"/>',
+}
+
+
+def sec_h2(key, i):
+    return ('<h2 class="gsec"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">%s</svg>%s</h2>'
+            % (SEC_ICON[key], t(T.GB_SEC[key], i)))
+
+
+def idlink(txt):
+    import re
+    return re.sub(r"(ID \d+A?)", r'<a href="#" class="idl">\1</a>', html.escape(txt))
+
+
+def gb_tab(i, cur, tab, active):
+    cols, rows, note, has_kiosk, _x = tab["means"]
+    out = ['<section class="gtab" id="tab-%s" role="tabpanel"%s>' % (tab["id"], "" if active else " hidden")]
+    out.append('<h2 class="gtitle">%s</h2>' % t(tab["title"], i))
+    # forms
+    out.append(sec_h2("forms", i))
+    items = []
+    for head, body in tab["forms"]:
+        b = ('<span class="gb">%s</span>' % idlink(g(head, i)))
+        if body:
+            b += '<span class="gd">%s</span>' % t(body, i)
+        items.append("<li>%s</li>" % b)
+    docs = []
+    for head, lines in tab["docs"]:
+        docs.append('<span class="gu">%s</span>' % t(head, i))
+        for lab, txt in lines:
+            docs.append('<span class="gl">%s%s</span>' % (lab, t(txt, i)))
+    items.append('<li><span class="gb">%s</span><span class="gd">%s</span></li>' % (
+        t(("Supporting documents", "증빙서류", "證明文件"), i), "".join(docs)))
+    out.append('<ul class="gl1">%s</ul>' % "".join(items))
+    out.append('<p class="gm"><a href="#">%s</a></p>' % t(T.GB_MORE["docs"], i))
+    # means table
+    out.append(sec_h2("means", i))
+    head = '<tr><th class="clk"><span data-clock></span></th>%s</tr>' % "".join('<th class="c%d">%s</th>' % (n, t(c, i)) for n, c in enumerate(cols))
+    body = []
+    for lab, marks in rows:
+        body.append('<tr><th scope="row">%s</th>%s</tr>' % (t(lab, i), "".join('<td class="c%d">%s</td>' % (n, "✓" if m else "") for n, m in enumerate(marks))))
+    out.append('<div class="tblw"><table class="pay"><thead>%s</thead><tbody>%s</tbody></table></div>' % (head, "".join(body)))
+    out.append('<p class="fn">%s</p><p class="fn"><a href="#">%s</a></p>' % (t(note, i), t(T.GB_MORE["faqpay"], i)))
+    out.append('<p class="fn addr">%s<br>%s</p>' % (t(T.GB_ADDR[0], i), "<br>".join(t(x, i) for x in T.GB_ADDR[1])))
+    out.append('<p class="gm"><a href="#">%s</a></p>' % t(T.GB_MORE["means"], i))
+    # collection
+    out.append(sec_h2("collect", i))
+    out.append('<ul class="gl1">%s</ul>' % "".join('<li><span class="gb">%s</span><span class="gd">%s</span></li>' % (t(h, i), t(b, i)) for h, b in tab["collect"]))
+    out.append('<p class="gm"><a href="#">%s</a></p>' % t(T.GB_MORE["collect"], i))
+    # processing
+    out.append(sec_h2("proc", i))
+    for txt, plain in tab["proc"]:
+        if plain:
+            out.append('<p class="pr">%s</p>' % t(txt, i))
+        else:
+            first, rest = g(txt, i).split(":" if i != 2 and i != 3 else "：", 1)
+            out.append('<p class="pr"><span class="note">%s%s</span>%s</p>' % (html.escape(first), ":" if i < 2 else "：", html.escape(rest)))
+    out.append('<p class="gm"><a href="#">%s</a></p>' % t(T.GB_MORE["proc"], i))
+    out.append("</section>")
+    return "".join(out)
+
+
+def guide_page(i, hl, cur, info):
+    title = info["title"]
+    tabs_btn = "".join('<button type="button" role="tab" class="gtb%s" data-tab="tab-%s" aria-selected="%s">%s</button>'
+                       % (" on" if n == 0 else "", tb["id"], "true" if n == 0 else "false", t(tb["title"], i)) for n, tb in enumerate(T.GB_TABS))
+    elig = "".join("<li>%s</li>" % t(x, i) for x in T.GB_ELIG)
+    panels = "".join(gb_tab(i, cur, tb, n == 0) for n, tb in enumerate(T.GB_TABS))
+    page = head(i, hl, "%s — %s" % (g(title, i), g(D.UI["site"], i)), cur)
+    page += '<body class="inner guide t-residents lang-%s"><a class="skip" href="#main" id="top">%s</a>' % (LANGS[i][0], U("skip", i))
+    page += top_bar(i, cur) + inner_header(i, cur, info) + mega_panels(i, cur) + breadcrumb(i, cur, info)
+    page += ('<main id="main" class="wrap gmain"><h1>%s</h1><p class="gintro">%s</p><ul class="elig">%s</ul>'
+             '<p class="gm"><a href="#">%s</a></p><div class="gtabs" role="tablist">%s</div>%s%s'
+             '<p class="gmorebtn"><a class="obtn" href="%s">%s</a></p>%s</main>'
+             % (html.escape(g(title, i)), t(T.GB_INTRO, i), elig, t(T.GB_MORE_ELIG, i), tabs_btn, panels,
+                share_html(i), rel(cur, "misc/guides"), t(T.GB_MOREBTN, i), poll(i)))
     page += footer(i, cur) + tail(i, cur)
     return finish(page, cur)
 
@@ -555,7 +716,12 @@ def main():
         for path, info in PAGES.items():
             out_dir = os.path.join(ROOT, folder, path)
             os.makedirs(out_dir, exist_ok=True)
-            txt = home_page(i, hl, path, info) if info["kind"] == "home" else inner_page(i, hl, path, info)
+            if info["kind"] == "home":
+                txt = home_page(i, hl, path, info)
+            elif info["kind"] == "guide":
+                txt = guide_page(i, hl, path, info)
+            else:
+                txt = inner_page(i, hl, path, info)
             with open(os.path.join(out_dir, "index.html"), "w", encoding="utf-8") as f:
                 f.write(txt)
             count += 1
