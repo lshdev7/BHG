@@ -12,7 +12,7 @@ L = {
     "errAgree": ("Please tick the box to continue.", "계속하려면 확인란에 체크해 주세요.", "請剔選方格以繼續。"),
     "errEmail": ("Please enter a valid email address.", "올바른 이메일 주소를 입력하세요.", "請輸入有效的電郵地址。"),
     "errTel": ("Please enter a valid phone number.", "올바른 전화번호를 입력하세요.", "請輸入有效的電話號碼。"),
-    "errId": ("Invalid identity card number. Example format: A123456(3).", "신분증 번호가 올바르지 않습니다. 형식 예: A123456(3)", "身份證號碼不正確。格式例子：A123456(3)。"),
+    "errId": ("Please enter the identity card number in the format A123456(7): 1 or 2 letters, 6 digits and a check digit (0-9 or A).", "신분증 번호를 A123456(7) 형식으로 입력하세요. 영문 1~2자, 숫자 6자리, 확인 문자(0~9 또는 A)입니다.", "請按A123456(7)格式輸入身份證號碼：1至2個英文字母、6位數字及1個核對數字（0至9或A）。"),
     "errDate": ("Please enter a valid date (YYYY-MM-DD) that is not in the future.", "미래가 아닌 올바른 날짜(YYYY-MM-DD)를 입력하세요.", "請輸入有效而不是未來的日期（YYYY-MM-DD）。"),
     "errName": ("Use English letters, spaces, hyphens and apostrophes only.", "영문, 공백, 하이픈, 아포스트로피만 사용할 수 있습니다.", "只可使用英文字母、空格、連字號及撇號。"),
     "errCode": ("Please enter exactly 4 digits.", "숫자 4자리를 입력하세요.", "請輸入4位數字。"),

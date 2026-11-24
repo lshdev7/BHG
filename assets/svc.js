@@ -47,15 +47,11 @@
     for (i = num.length - 1; i >= 0; i--) { d = +num.charAt(i); if (alt) { d *= 2; if (d > 9) d -= 9; } s += d; alt = !alt; }
     return s % 10 === 0;
   }
-  function bhidOK(v) {
-    var m = /^([A-Z]{1,2})(\d{6})\(([0-9A])\)$/.exec(v.toUpperCase().replace(/\s/g, ""));
-    if (!m) return false;
-    var l = m[1], sum = 0, i, c = function (ch) { return ch.charCodeAt(0) - 55; };
-    if (l.length === 1) sum = 36 * 9 + c(l) * 8; else sum = c(l.charAt(0)) * 9 + c(l.charAt(1)) * 8;
-    for (i = 0; i < 6; i++) sum += (+m[2].charAt(i)) * (7 - i);
-    var chk = (11 - (sum % 11)) % 11;
-    return (chk === 10 ? "A" : String(chk)) === m[3];
-  }
+  /* HKID-style number: 1-2 letters, 6 digits, check character 0-9 or A (brackets optional).
+     Any number in this format is accepted; the check character is not recalculated. */
+  var ID_RE = /^([A-Z]{1,2})(\d{6})\(?([0-9A])\)?$/;
+  function bhidOK(v) { return ID_RE.test(String(v).toUpperCase().replace(/\s/g, "")); }
+  function normId(v) { var m = ID_RE.exec(String(v).toUpperCase().replace(/\s/g, "")); return m ? m[1] + m[2] + "(" + m[3] + ")" : v; }
   function validDate(v) {
     var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v);
     if (!m) return false;
@@ -276,7 +272,13 @@
           wrap = wrapRoot.querySelector('[data-n="' + f.n + '"]');
         } else if (f.t === "file" || f.t === "photo") {
           if (f.req && !S.files[f.n]) msg = L.errReq;
-        } else msg = checkField(f, S.vals[f.n], S.vals);
+        } else {
+          msg = checkField(f, S.vals[f.n], S.vals);
+          if (!msg && f.v === "bhid" && S.vals[f.n]) {
+            S.vals[f.n] = normId(S.vals[f.n]);
+            var idIn = document.getElementById("f_" + f.n); if (idIn) idIn.value = S.vals[f.n];
+          }
+        }
         if (msg && wrap) { setErr(wrap, msg); ok = false; }
         else if (wrap) setErr(wrap, "");
       });
