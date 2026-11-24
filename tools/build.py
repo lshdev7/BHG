@@ -19,6 +19,7 @@ import data as D          # noqa: E402
 import data_travel as T   # noqa: E402
 import data_info as I     # noqa: E402
 import data_esvc as E     # noqa: E402
+import data_forms as FM    # noqa: E402
 import json               # noqa: E402
 from t2s_map import T2S, PHRASES  # noqa: E402
 
@@ -79,8 +80,8 @@ TD_IMMD = {   # GovHK sends these to the Immigration Department website
     "aboutseaman": IMMD_TD + "/seaman", "branches": "immd:contact/branch-offices", "hq": "immd:contact/hq-offices",
 }
 APPS = {   # GovHK-style hand-off pages that forward to the Immigration Department e-services
-    "apps/immdapplypassport": ("immd:eservices/passport-application", ("OWP form filling", "온라인 신청서 작성", "網上表格填寫")),
-    "apps/immdtd_booking": ("immd:eservices/travel-document-booking", ("Travel document appointment booking", "여행증명서 신청 예약", "預約申請旅行證件")),
+    "apps/immdapplypassport": ("immd:eservices/passport-application/loading", ("OWP form filling", "온라인 신청서 작성", "網上表格填寫")),
+    "apps/immdtd_booking": ("immd:eservices/travel-document-booking/loading", ("Travel document appointment booking", "여행증명서 신청 예약", "預約申請旅行證件")),
 }
 
 
@@ -103,8 +104,8 @@ ESERVICES = {   # path -> (config key, title)
     "eservices/tax-calc": ("tax-calc", E.TAXCALC["title"]),
 }
 BLOCK_TARGET = {
-    "apply": "apps/immdapplypassport", "appointment": "apps/immdtd_booking", "tdstatus": "immd:eservices/travel-document-status",
-    "appstatussvc": "immd:eservices/application-status", "idbook": "immd:eservices/idcard-booking",
+    "apply": "apps/immdapplypassport", "appointment": "apps/immdtd_booking", "tdstatus": "immd:eservices/travel-document-status/loading",
+    "appstatussvc": "immd:eservices/application-status/loading", "idbook": "immd:eservices/idcard-booking/loading",
     "photo": TD_IMMD["photo"], "payfaq": PAYFAQ_PATH, "passfaq": TD_IMMD["faq"], "faq": TD_IMMD["faq"], "fees": TD_IMMD["fees"],
     "etaxlogin": "eservices/etax-login", "etaxreg": "eservices/etax-register", "taxcalc": ETX + "/taxcalc",
     "allowance": ETX + "/allowance", "taxpay": "eservices/tax-payment",
@@ -118,6 +119,7 @@ LINK_TARGETS = {   # by English text of a "links" item
     "Addresses and working hours of Immigration Offices at Immigration Branch Offices": TD_IMMD["branches"],
 }
 BOOK_PATH = TD + "/passport/book"
+SLUG2FORM = {FM.FORMS[c]["slug"]: c for c in FM.ORDER}
 GUIDE_PATH = "guidebook/passport"
 
 MISC = {}          # slug -> title tuple   (generic pages under misc/)
@@ -148,8 +150,10 @@ def build_registry():
                         xp = "%s/%s" % (lp, xslug)
                         reg(xp, kind="service" if xp in ARTICLES else "leaf2", tab=tab, cat=cslug, sub=sslug, leaf=lslug, subleaf=xslug, title=xtitle)
         reg("%s/onlineservices" % tab, kind="list", tab=tab, title=D.ONLINE_PAGE, what="online")
-        reg("%s/forms" % tab, kind="list", tab=tab, title=D.FORMS_PAGE, what="forms")
+        reg("%s/forms" % tab, kind="catalog", tab=tab, title=FM.CAT_TITLE)
     reg(PAYFAQ_PATH, kind="service", tab="residents", title=I.PAYFAQ_TITLE)
+    for code in FM.ORDER:
+        reg("forms/" + code, kind="form", tab="residents", title=FM.FORMS[code]["title"], code=code)
     for path, (target, title) in APPS.items():
         reg(path, kind="apps", tab="residents", title=title, target=target)
     for path, (key, title) in ESERVICES.items():
@@ -169,7 +173,7 @@ def build_registry():
     for slug, title in items:
         MISC.setdefault(slug, title)
     for slug, title in MISC.items():
-        if slug in ("passport", "idcard", "etax", "etaxlogin", "appstatus", "taxcalc"):
+        if slug in ("passport", "idcard", "etax", "etaxlogin", "appstatus", "taxcalc") or slug in SLUG2FORM:
             continue
         reg("misc/%s" % slug, kind="misc", tab="residents", title=title, slug=slug)
     for n, (title, _c, _k) in enumerate(D.HERO_CARDS):
@@ -200,6 +204,8 @@ def target_of(slug):
         return "immd:services/identity-cards"
     if slug == "etax":
         return ETX
+    if slug in SLUG2FORM:
+        return "forms/" + SLUG2FORM[slug]
     if slug == "etaxlogin":
         return "eservices/etax-login"
     if slug == "appstatus":
@@ -665,6 +671,8 @@ def inner_page(i, hl, cur, info):
         blob = json.dumps(esvc_cfg(info["esvc"], i, cur), ensure_ascii=False).replace("</", "<\\/")
         main += '<div id="svc" class="svc"></div><script type="application/json" id="svc-cfg">%s</script>' % blob
         extra = '<script src="%ASSETS%svc.js"></script>'
+    elif kind == "catalog":
+        main += share_html(i) + catalog_main(i, cur, tab)
     elif kind == "list":
         src = D.ONLINE if info["what"] == "online" else D.FORMS
         lis = "".join('<li><a href="%s">%s</a></li>' % (link(cur, target_of(s), i), t(tt, i)) for s, tt in src[tab])
@@ -672,7 +680,7 @@ def inner_page(i, hl, cur, info):
     else:  # misc
         main += '<div class="box"><p>%s</p></div>' % U("stub_nomenu", i) + poll(i)
 
-    side = sidebar(i, cur, info)
+    side = catalog_side(i, cur, tab) if kind == "catalog" else sidebar(i, cur, info)
     page = head(i, hl, "%s — %s" % (g(title, i), g(D.UI["site"], i)), cur)
     page += '<body class="inner t-%s lang-%s"><a class="skip" href="#main" id="top">%s</a>' % (tab, LANGS[i][0], U("skip", i))
     page += top_bar(i, cur) + inner_header(i, cur, info) + mega_panels(i, cur)
@@ -685,16 +693,116 @@ def inner_page(i, hl, cur, info):
 
 
 def apps_page(i, hl, cur, info):
+    """GovHK-style hand-off page: blank page with a spinner that forwards to the Immigration Department after 3 seconds."""
     url = link(cur, info["target"], i)
-    msg = g(("You are now being redirected to the e-service of the Immigration Department. If the page does not open in 3 seconds, please select the link below.",
-             "출입경사무처 전자서비스로 이동하고 있습니다. 3초 안에 열리지 않으면 아래 링크를 누르세요.",
-             "現正轉往入境事務處的電子服務。如頁面在3秒內未能開啟，請按下面的連結。"), i)
     return ('<!doctype html><html lang="%s"><head><meta charset="utf-8"><meta name="robots" content="noindex,follow">'
             '<meta http-equiv="Refresh" content="3;URL=%s"><meta name="viewport" content="width=device-width, initial-scale=1">'
-            '<title>GovBHG: %s</title><link rel="stylesheet" href="%s"></head><body class="inner apps">'
-            '<main class="wrap" style="padding:60px 0"><h1 style="font-size:22px;margin-bottom:14px">%s</h1><p style="margin-bottom:14px">%s</p><p><a style="color:#951717;text-decoration:underline" href="%s">%s</a></p></main></body></html>'
-            % (hl, html.escape(url), html.escape(g(info["title"], i)), "../" * (depth(cur) + 1) + "assets/site.css",
-               html.escape(g(info["title"], i)), html.escape(msg), html.escape(url), html.escape(url)))
+            '<meta http-equiv="Cache-Control" content="no-cache"><title>GovBHG: %s</title>'
+            '<style>body{margin:0;background:#fff}.loader{position:absolute;top:50%%;left:50%%;margin:-30px 0 0 -30px;border:5px solid #f3f3f3;'
+            'border-top:5px solid #cc4c02;border-radius:50%%;width:50px;height:50px;animation:spin 1.6s linear infinite}'
+            '@keyframes spin{to{transform:rotate(360deg)}}</style></head><body><div class="loader" role="progressbar" aria-label="Loading"></div></body></html>'
+            % (hl, html.escape(url), html.escape(g(info["title"], i))))
+
+
+# ----------------------------------------------------------------------------- government forms
+def bil(tup, i):
+    """Primary text in the page language plus the secondary language in small type, as on bilingual forms."""
+    sec = 2 if i == 0 else 0
+    return '%s <small>%s</small>' % (t(tup, i), t(tup, sec))
+
+
+def form_item(it, i):
+    k = it[0]
+    if k == "part":
+        return '<div class="fpart">%s</div>' % bil(it[1], i)
+    if k == "note":
+        return '<p class="fnote">%s</p>' % bil(it[1], i)
+    if k == "text":
+        w = it[2] if len(it) > 2 else "full"
+        return '<label class="ff w-%s"><span class="fl">%s</span><input type="text"></label>' % (w, bil(it[1], i))
+    if k == "boxes":
+        return '<div class="ff w-full"><span class="fl">%s</span><span class="cbx">%s</span></div>' % (bil(it[1], i), '<input maxlength="1" aria-label="%d">' * it[2] % tuple(range(1, it[2] + 1)))
+    if k == "check":
+        return '<div class="ff w-full"><span class="fl">%s</span><span class="opts">%s</span></div>' % (bil(it[1], i), "".join('<label><input type="checkbox"> %s</label>' % bil(o, i) for o in it[2]))
+    if k == "yn":
+        return '<div class="ff w-full yn"><span class="fl">%s</span><span class="opts">%s</span></div>' % (bil(it[1], i), "".join('<label><input type="checkbox"> %s</label>' % bil(o, i) for o in (FM.YES, FM.NO)))
+    if k == "money":
+        return '<label class="ff w-full money"><span class="fl">%s</span><span class="cur">BH$</span><input type="text" inputmode="decimal"></label>' % bil(it[1], i)
+    if k == "date":
+        return '<div class="ff w-full"><span class="fl">%s</span><span class="dmy">%s</span></div>' % (bil(it[1], i), "".join('<label><input type="text" maxlength="4"> %s</label>' % t(x, i) for x in (FM.DAY, FM.MONTH, FM.YEAR)))
+    if k == "pair":
+        return '<div class="ff w-full"><span class="fl">%s</span><span class="pair">%s</span></div>' % (bil(it[1], i), "".join('<label><em>%s</em><input type="text"></label>' % t(x, i) for x in it[2]))
+    if k == "addr":
+        A = FM.ADDR
+        return ('<fieldset class="ff w-full addr"><legend class="fl">%s</legend><span class="opts">%s</span>'
+                '<span class="arow"><label><em>%s</em><input type="text"></label><label><em>%s</em><input type="text"></label><label><em>%s</em><input type="text"></label></span>'
+                '<label><em>%s</em><input type="text"></label><label><em>%s</em><input type="text"></label><label><em>%s</em><input type="text"></label></fieldset>'
+                % (bil(it[1], i), "".join('<label><input type="checkbox"> %s</label>' % t(o, i) for o in A["areas"]),
+                   t(A["flat"], i), t(A["floor"], i), t(A["block"], i), t(A["bldg"], i), t(A["street"], i), t(A["district"], i)))
+    if k == "table":
+        head_ = "".join("<th>%s</th>" % bil(c, i) for c in it[1])
+        if isinstance(it[2], int):
+            rows = "".join("<tr>%s</tr>" % "".join('<td><input type="text"></td>' for _ in it[1]) for _ in range(it[2]))
+        else:
+            rows = "".join("<tr>%s</tr>" % "".join("<td>%s</td>" % t(c, i) for c in r) for r in it[2])
+        return '<div class="ff w-full"><table class="ftab"><thead><tr>%s</tr></thead><tbody>%s</tbody></table></div>' % (head_, rows)
+    if k == "sign":
+        return '<div class="ff w-full sign">%s</div>' % "".join('<label><input type="text"><em>%s</em></label>' % bil(x, i) for x in it[1])
+    return ""
+
+
+def form_page(i, hl, cur, info):
+    F = FM.FORMS[info["code"]]
+    dname, daddr = FM.DEPT[F["dept"]]
+    V = FM.VIEWER
+    up = "../" * (depth(cur) + 1)
+    body = "".join(form_item(it, i) for it in F["items"])
+    return finish(
+        '<!doctype html><html lang="%s"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
+        '<title>%s</title><link rel="icon" href="%sassets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="%sassets/site.css"></head>'
+        '<body class="pdfv lang-%s"><div class="pv-bar"><span class="pv-file">%s</span><span class="pv-sp"></span>'
+        '<button type="button" onclick="window.print()">%s</button><button type="button" onclick="window.print()">%s</button><a href="%s">%s</a></div>'
+        '<main class="pv-doc"><article class="sheet"><header class="fh"><div class="fdept"><img src="%%ASSETS%%flag.jpg" alt="" width="44" height="44">'
+        '<span><strong>%s</strong><em>%s</em></span></div><div class="fno">%s<span class="fofficial">%s</span></div></header>'
+        '<h1 class="ftitle">%s</h1><p class="fintro">%s</p><form class="fgrid" onsubmit="return false">%s</form>'
+        '<footer class="ffoot"><span>%s</span><span>%s 1</span></footer></article></main></body></html>'
+        % (hl, html.escape(F["file"]), up, up, LANGS[i][0], html.escape(F["file"]), t(V["print"], i), t(V["save"], i), rel(cur, ""), t(V["back"], i),
+           bil(dname, i), t(daddr, i), html.escape(F["no"]), t(V["official"], i), bil(F["title"], i), t(F["intro"], i), body, html.escape(F["no"]), t(V["page"], i)),
+        cur)
+
+
+def catalog_side(i, cur, tab):
+    lis = "".join('<li%s><a href="%s">%s</a></li>' % (' class="on"' if k == tab else "", rel(cur, k + "/forms"), t(tt, i)) for k, tt in FM.CAT_USERS)
+    return '<aside class="side"><ul>%s</ul></aside>' % lis
+
+
+def form_li(code, i, cur):
+    F = FM.FORMS[code]
+    return ('<li data-k="%s"><a href="%s">%s (%s)</a> <span class="fmt">PDF</span></li>'
+            % (html.escape((g(F["title"], i) + " " + F["no"] + " " + F["title"][0]).lower()), rel(cur, "forms/" + code), t(F["title"], i), html.escape(F["no"].split(" (")[0])))
+
+
+def catalog_main(i, cur, tab):
+    hot = ", ".join('<a href="#" data-hot="%s">%s</a>' % (t(w, i), t(w, i)) for w in FM.CAT_HOT_WORDS)
+    fmts = "".join('<span class="fmtl"><span class="fmt">%s</span>%s</span>' % ({"Adobe PDF": "PDF", "Online Form": "WEB", "Microsoft Word": "DOC"}[x[0]], t(x, i)) for x in FM.CAT_FMT)
+    acc = []
+    if tab == "residents":
+        for cs, ct, _subs in D.TREE["residents"]:
+            groups = FM.CAT_SVC.get(cs, [])
+            inner = "".join("<h4>%s</h4><ul>%s</ul>" % (t(h, i), "".join(form_li(c, i, cur) for c in codes)) for h, codes in groups) or "<p>%s</p>" % t(FM.CAT_EMPTY, i)
+            acc.append('<details><summary>%s</summary><div class="cat-b">%s</div></details>' % (t(ct, i), inner))
+        life = "".join('<details><summary>%s</summary><div class="cat-b"><ul>%s</ul></div></details>' % (t(h, i), "".join(form_li(c, i, cur) for c in codes)) for h, codes in FM.CAT_LIFE)
+    else:
+        items = "".join('<li data-k="%s"><a href="%s">%s</a> <span class="fmt">PDF</span></li>' % (html.escape(g(tt, i).lower()), rel(cur, target_of(s_)), t(tt, i)) for s_, tt in D.FORMS[tab])
+        acc.append('<details open><summary>%s</summary><div class="cat-b"><ul>%s</ul></div></details>' % (t(dict(D.TABS)[tab], i), items))
+        life = acc[0]
+    tabs = "".join('<button type="button" data-ct="%s" class="%s">%s</button>' % (k, "on" if k == "svc" else "", t(tt, i)) for k, tt in FM.CAT_TABS)
+    return ('<div class="cat"><h2 class="cat-s">%s</h2><form class="catq" onsubmit="return false"><input type="search" id="catq" placeholder="%s" aria-label="%s">%s</form>'
+            '<p class="cat-hot"><strong>%s</strong> %s</p><div class="cat-res" id="catres" hidden></div><hr><p>%s</p><p>%s</p><p class="fmts">%s</p><hr>'
+            '<h2 class="cat-h">%s</h2><div class="cat-tabs">%s</div><p class="cat-ea"><button type="button" data-cea>%s +</button></p>'
+            '<div class="cat-p" data-cp="svc">%s</div><div class="cat-p" data-cp="life" hidden>%s</div><p class="cat-none" id="catnone" hidden>%s</p></div>'
+            % (t(FM.CAT_SEARCH, i), t(FM.CAT_PH, i), t(FM.CAT_PH, i), search_icon(), t(FM.CAT_HOT, i), hot, t(FM.CAT_INTRO, i), t(FM.CAT_FORMATS, i), fmts,
+               t(FM.CAT_COMMON, i), tabs, U("expand_all", i), "".join(acc), life, t(FM.CAT_NONE, i)))
 
 
 # ----------------------------------------------------------------------------- guidebook page
@@ -845,6 +953,8 @@ def main():
                 txt = guide_page(i, hl, path, info)
             elif info["kind"] == "apps":
                 txt = apps_page(i, hl, path, info)
+            elif info["kind"] == "form":
+                txt = form_page(i, hl, path, info)
             else:
                 txt = inner_page(i, hl, path, info)
             with open(os.path.join(out_dir, "index.html"), "w", encoding="utf-8") as f:

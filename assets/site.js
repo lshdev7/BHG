@@ -188,6 +188,39 @@
     });
   });
 
+  /* ---- government form catalogue: tabs, expand all, search ---- */
+  $$(".cat-tabs button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      $$(".cat-tabs button").forEach(function (x) { x.classList.toggle("on", x === b); });
+      $$(".cat-p").forEach(function (p) { p.hidden = p.getAttribute("data-cp") !== b.getAttribute("data-ct"); });
+    });
+  });
+  $$("[data-cea]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var ds = $$(".cat-p:not([hidden]) details"), open = ds.some(function (d) { return !d.open; });
+      ds.forEach(function (d) { d.open = open; });
+    });
+  });
+  var cq = $("#catq");
+  function catSearch() {
+    var q = cq.value.trim().toLowerCase(), box = $("#catres"), seen = {};
+    box.textContent = "";
+    if (!q) { box.hidden = true; $("#catnone").hidden = true; return; }
+    var ul = document.createElement("ul");
+    $$(".cat-p li[data-k]").forEach(function (li) {
+      var k = li.getAttribute("data-k"), a = li.querySelector("a");
+      if (k.indexOf(q) !== -1 && !seen[a.getAttribute("href")]) { seen[a.getAttribute("href")] = 1; ul.appendChild(li.cloneNode(true)); }
+    });
+    box.hidden = !ul.children.length; $("#catnone").hidden = !!ul.children.length;
+    if (ul.children.length) box.appendChild(ul);
+  }
+  if (cq) {
+    cq.addEventListener("input", catSearch);
+    $$("[data-hot]").forEach(function (a) {
+      a.addEventListener("click", function (e) { e.preventDefault(); cq.value = a.getAttribute("data-hot"); catSearch(); });
+    });
+  }
+
   var tt = $("#totop");
   if (tt) tt.addEventListener("click", function (e) { e.preventDefault(); window.scrollTo(0, 0); });
 })();
