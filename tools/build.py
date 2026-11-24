@@ -414,7 +414,7 @@ def top_bar(i, cur):
         cls = ' class="cur"' if IDX[code] == i else ""
         langs.append('<li><a href="%s" lang="%s" hreflang="%s"%s>%s</a></li>' % (href, hl, hl, cls, label))
     return (
-        '<div class="topbar"><div class="wrap topbar-in"><ul class="tools">'
+        '<div class="topbar"><div class="wrap topbar-in"><ul class="tools"><li class="ias"><span id="ias-login"></span></li>'
         '<li class="ts"><button type="button" id="textsize">%s</button></li>'
         '<li class="lg"><button type="button" class="lg-btn" aria-expanded="false" aria-controls="langmenu">'
         '<svg viewBox="0 0 24 24" class="globe" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/>'
@@ -487,11 +487,16 @@ def finish(htmltxt, cur):
     return htmltxt.replace("%ASSETS%", up + "assets/").replace("%HOME%", rel(cur, ""))
 
 
+CLIENT_JS = "/bhg_iAMSmart/lib/ias-client.js"
+
+
 def tail(i, cur, extra=""):
     return (
         '<div id="results" class="results" hidden><div class="wrap"><h2>%s</h2><ul id="rlist"></ul></div></div>'
-        '<script>window.BHG={nores:"%s"};</script><script src="%%ASSETS%%site.js"></script>%s</body></html>'
-        % (U("res_title", i), g(D.UI["no_res"], i), extra)
+        '<script>window.BHG={nores:"%s"};</script><script src="%%ASSETS%%site.js"></script>'
+        '<script src="%s" data-client="govbhg" data-client-name="%s"></script>'
+        '<script>if(window.IASClient){IASClient.loginButton(document.getElementById("ias-login"));}</script>%s</body></html>'
+        % (U("res_title", i), g(D.UI["no_res"], i), CLIENT_JS, html.escape(g(("GovBHG", "정부포털 BHG", "BHG政府一站通"), i)), extra)
     )
 
 

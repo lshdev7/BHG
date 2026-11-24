@@ -491,3 +491,6 @@ body.pdfv{background:#525659;color:#000;font-family:Arial,Helvetica,"Malgun Goth
 .vcards a:hover{box-shadow:0 2px 8px rgba(0,0,0,.12)}.vcards strong{display:block;font-size:18px;color:#0b4fa3;margin:0 0 8px}.vcards span{font-size:15px;line-height:1.5}
 @media (max-width:760px){.vcards{grid-template-columns:1fr}}
 ul.vcards>li{list-style:none!important;margin:0!important;padding:0!important}ul.vcards>li::before{content:none!important;display:none!important}
+
+/* iAM Smart */
+.tools li.ias{margin-right:auto;display:flex;align-items:center}.tools .ias-btn{font-size:13px;padding:4px 10px}.iasfill{display:inline-flex;align-items:center;gap:8px;margin:0 0 14px}
