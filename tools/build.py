@@ -487,7 +487,7 @@ def finish(htmltxt, cur):
     return htmltxt.replace("%ASSETS%", up + "assets/").replace("%HOME%", rel(cur, ""))
 
 
-CLIENT_JS = "/ImaSmart/lib/ias-client.js"
+CLIENT_JS = "/iAMSmart/lib/ias-client.js"
 
 
 def tail(i, cur, extra=""):
