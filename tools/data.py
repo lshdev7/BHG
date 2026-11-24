@@ -271,8 +271,8 @@ TREE["nonresidents"] = [
         ("support", ("Support & Financial Assistance", "지원 및 학자금", "支援及財政資助")),
     ]),
     ("visarequire", ("Immigration Services", "출입경 서비스", "入境服務"), [
-        ("entry", ("Entry Arrangement", "입경 절차", "入境安排")),
-        ("visa", ("Introduction & Application for Visas / Entry Permits", "비자·입경허가 안내 및 신청", "簽證／進入許可證簡介及申請")),
+        ("general", ("General Visa Requirements", "일반 비자 요건", "一般簽證規定")),
+        ("visasentrypermits", ("Introduction & Application for Visas / Entry Permits", "비자·입경허가 안내 및 신청", "簽證／進入許可證簡介及申請")),
         ("echannel", ("Automated Immigration Clearance (e-Channel) Service for Visitors", "방문객 자동 출입경 심사(e-Channel)", "旅客自助出入境檢查（e-道）服務")),
         ("records", ("Application for Personal Data / Information of Immigration Department", "출입경사무처 개인정보·자료 신청", "申請入境事務處的個人資料／資訊")),
     ]),

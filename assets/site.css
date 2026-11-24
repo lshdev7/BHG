@@ -484,3 +484,10 @@ body.pdfv{background:#525659;color:#000;font-family:Arial,Helvetica,"Malgun Goth
 .ffoot{display:flex;justify-content:space-between;margin-top:26px;font-size:10.5px;border-top:1px solid #999;padding-top:6px}
 @media print{body.pdfv{background:#fff}.pv-bar{display:none}.pv-doc{padding:0}.sheet{box-shadow:none;width:auto;min-height:0;padding:0}.ff input{background:none!important}}
 @media (max-width:820px){.sheet{padding:24px 16px}.w-half,.w-third{flex-basis:100%}.cat-tabs button{flex-basis:50%}.cat-h{font-size:28px}.arow,.pair{flex-direction:column;gap:2px}}
+
+/* visa cards (Introduction & Application for Visas / Entry Permits) */
+.vcards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:6px 0 20px;padding:0;list-style:none}
+.vcards a{display:block;height:100%;border:1px solid #dcdcdc;border-top:4px solid #cc4c02;padding:16px 18px;color:#333;text-decoration:none;background:#fff}
+.vcards a:hover{box-shadow:0 2px 8px rgba(0,0,0,.12)}.vcards strong{display:block;font-size:18px;color:#0b4fa3;margin:0 0 8px}.vcards span{font-size:15px;line-height:1.5}
+@media (max-width:760px){.vcards{grid-template-columns:1fr}}
+ul.vcards>li{list-style:none!important;margin:0!important;padding:0!important}ul.vcards>li::before{content:none!important;display:none!important}

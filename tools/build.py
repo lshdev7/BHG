@@ -88,7 +88,10 @@ APPS = {   # GovHK-style hand-off pages that forward to the Immigration Departme
 def link(cur, target, i):
     """Relative link inside GovBHG, or absolute link to the Immigration Department site for "immd:" targets."""
     if target.startswith("immd:"):
-        return IMMD_BASE + LANGS[i][1] + "/" + target[5:] + "/"
+        path, _, anchor = target[5:].partition("#")
+        return IMMD_BASE + LANGS[i][1] + "/" + path + "/" + ("#" + anchor if anchor else "")
+    if target.startswith("gov:"):
+        target = target[4:]
     return rel(cur, target)
 PAYFAQ_PATH = "about/helpdesk/faq/payment"
 ARTICLES.update({
@@ -122,6 +125,131 @@ BOOK_PATH = TD + "/passport/book"
 SLUG2FORM = {FM.FORMS[c]["slug"]: c for c in FM.ORDER}
 GUIDE_PATH = "guidebook/passport"
 
+
+
+# ----------------------------------------------------------------------------- Visas / Entry Permits (GovHK service pages -> ImmD e-services)
+import data_visa as V   # noqa: E402
+
+NPP = "residents/immigration/nonpermanent"
+VEPP = "nonresidents/visarequire/visasentrypermits"
+
+
+def vpath(target):
+    """data_visa target -> GovBHG link target ("gov:x" -> "x", "immd:x" kept)."""
+    return target[4:] if target.startswith("gov:") else target
+
+
+def es_keys():
+    out, seen = [], set()
+    for s in V.SCHEMES:
+        if s["entry"] and ("e", s["entry"]) not in seen:
+            seen.add(("e", s["entry"])); out.append(("visa-" + s["k"], s, False))
+        if s["ext"] and ("x", s["ext"]) not in seen:
+            seen.add(("x", s["ext"])); out.append(("ext-" + s["k"], s, True))
+    return out
+
+
+def fmt(tup, s):
+    return tuple(x.replace("{s}", y) for x, y in zip(tup, s))
+
+
+def one(n):
+    return (str(n), str(n), str(n))
+
+
+def star(d, req):
+    return tuple(("* " + x) if req else x for x in d)
+
+
+def vtitle(s, ext):
+    T = V.GOVT
+    if ext:
+        return fmt(T["fdhExtT"] if s.get("fdhsub") else T["extT"], s["t"])
+    return V.GOV_TITLE.get(s["entry"]) or fmt(T["entryT"], s["t"])
+
+
+def visa_blocks(key, s, ext):
+    T = V.GOVT
+    docs = s["ext_docs"] if ext else s["docs"]
+    rows = []
+    n = 0
+    for d in docs:
+        req = V.mandatory(d)
+        if d is not V.D_PHOTO:
+            n += 1
+        rows.append([star(d, req), one(1 if d in (V.D_PHOTO, V.D_ID, V.D_IDX) else 5)])
+    b = [("h2", T["who"]), ("p", fmt(T["whoExt"] if ext else T["whoEntry"], s["t"])),
+         ("h2", T["elig"]), ("p", T["seeElig"]), ("golinks", [(s["t"], "immd:services/visas/" + s["k"])]),
+         ("h2", T["docs"]), ("p", T["mand"]), ("strong", T["docA"]), ("table", [T["colDoc"], T["colMax"]], rows)]
+    if s["deps"]:
+        b += [("strong", T["docB"]), ("table", [T["colDoc"], T["colMax"]], [[star(V.D_DEP_PHOTO, True), one(1)], [star(V.D_DEP_TD, True), one(5)], [star(V.D_REL, True), one(5)]])]
+    b += [("p", T["form"]), ("h3", T["fmt"]), ("p", T["fmtP"])]
+    if s["k"] not in ("pri", "prt"):
+        lk = [(T["payfaq"], PAYFAQ_PATH)]
+        if s["spec"]:
+            lk.append((V.LINK_GROUPS[0][1][0][0], "immd:services/visas/info/specified-schemes"))
+        b += [("h2", T["pay"]), ("p", T["payP"]), ("golinks", lk)]
+    start = T["startExt"] if ext else fmt(T["startEntry"], s["t"])
+    b += [("h2", T["start"]), ("p", T["startP"]), ("golinks", [(start, "apps/immdes2" + key)]), ("p", T["startN"])]
+    if s["deps"]:
+        b += [("h2", T["group"]), ("p", T["groupP"])]
+    b += [("h2", T["supp"]), ("p", T["suppP"]), ("golinks", [(T["suppL"], vpath(V.EXTP) + "/submitsupplementdoc")]),
+          ("h2", T["help"]), ("p", T["helpP"])]
+    return b
+
+
+def common_blocks(key, title, intro):
+    T = V.GOVT
+    b = [("p", x) for x in intro]
+    b += [("h2", T["start"]), ("golinks", [(title, "apps/immdes2" + key)]), ("h2", T["help"]), ("p", T["helpP"])]
+    return b
+
+
+def setup_visa():
+    """Fill ARTICLES / APPS / D.LEAVES before the registry is built."""
+    leaves = D.LEAVES.setdefault(("immigration", "nonpermanent"), [])
+    have = {x[0] for x in leaves}
+    sub_ext = []
+    entry_np = []
+    VISA_REG.clear()
+    for key, s, ext in es_keys():
+        APPS["apps/immdes2" + key] = ("immd:eservices/%s/loading" % key, vtitle(s, ext))
+        if ext:
+            path = vpath(V.ext_target(s))
+            sub_ext.append((s["ext"], vtitle(s, ext)))
+        else:
+            path = vpath(V.entry_target(s))
+            if s["entry_loc"] == "np":
+                entry_np.append((s["entry"], vtitle(s, ext)))
+            else:
+                VISA_REG.append((path, s["entry"], vtitle(s, ext)))
+        ARTICLES[path] = visa_blocks(key, s, ext)
+    for key, target, title, intro in V.COMMON:
+        APPS["apps/immdes2" + key] = ("immd:eservices/%s/loading" % key, title)
+        path = vpath(target)
+        ARTICLES[path] = common_blocks(key, title, intro)
+        slug = path.rsplit("/", 1)[1]
+        if path.startswith(NPP + "/applyextensionstay/"):
+            sub_ext.append((slug, title))
+        elif slug not in have:
+            leaves.append((slug, title)); have.add(slug)
+    # Online Application for Extension of Stay (index)
+    fdh = [(x[1], NPP + "/applyextensionstay/" + x[0]) for x in sub_ext if x[0].startswith("fdh")]
+    oth = [(x[1], NPP + "/applyextensionstay/" + x[0]) for x in sub_ext if not x[0].startswith("fdh") and x[0] != "submitsupplementdoc"]
+    ARTICLES[NPP + "/applyextensionstay"] = [("p", V.NP_INDEX[2]), ("golinks", fdh), ("strong", ("Other non-permanent residents", "기타 비영주 주민", "其他非永久性居民")), ("golinks", oth)]
+    if "applyextensionstay" not in have:
+        leaves.insert(1, ("applyextensionstay", V.NP_INDEX[1])); have.add("applyextensionstay")
+    for slug, title in entry_np:
+        if slug not in have:
+            leaves.append((slug, title)); have.add(slug)
+    D.SUBLEAVES[("immigration", "nonpermanent", "applyextensionstay")] = sub_ext
+    ARTICLES["nonresidents/visarequire/visasentrypermits"] = [("cards", V.VEP_CARDS)]
+    ARTICLES["nonresidents/visarequire/general"] = [("cards", V.GENERAL_CARDS)]
+
+
+VISA_REG = []
+setup_visa()
+
 MISC = {}          # slug -> title tuple   (generic pages under misc/)
 PAGES = {}         # path -> dict
 
@@ -152,6 +280,8 @@ def build_registry():
         reg("%s/onlineservices" % tab, kind="list", tab=tab, title=D.ONLINE_PAGE, what="online")
         reg("%s/forms" % tab, kind="catalog", tab=tab, title=FM.CAT_TITLE)
     reg(PAYFAQ_PATH, kind="service", tab="residents", title=I.PAYFAQ_TITLE)
+    for path, slug, title in VISA_REG:
+        reg(path, kind="service", tab="nonresidents", cat="visarequire", sub="visasentrypermits", leaf=slug, title=title)
     for code in FM.ORDER:
         reg("forms/" + code, kind="form", tab="residents", title=FM.FORMS[code]["title"], code=code)
     for path, (target, title) in APPS.items():
@@ -554,6 +684,12 @@ def render_blocks(blocks, i, cur):
             out.append('<ul class="bl">%s</ul>' % "".join('<li><a href="%s">%s</a></li>' % (link(cur, LINK_TARGETS.get(x[0], TD_IMMD["faq"]), i), html.escape(g(x, i))) for x in b[1]))
         elif k == "links2":
             out.append('<ul class="bl">%s</ul>' % "".join('<li><a href="%s">%s</a></li>' % (block_href(slug, cur, i), html.escape(g(x, i))) for x, slug in b[1]))
+        elif k == "golinks":
+            out.append('<ul class="bl">%s</ul>' % "".join('<li><a href="%s">%s</a></li>' % (link(cur, x, i), html.escape(g(tt, i))) for tt, x in b[1]))
+        elif k == "go":
+            out.append('<p class="btnp"><a class="gbtn" href="%s"><span>%s</span><i class="gch2"></i></a></p>' % (link(cur, b[2][4:] if b[2].startswith("gov:") else b[2], i), html.escape(g(b[1], i))))
+        elif k == "cards":
+            out.append('<ul class="vcards">%s</ul>' % "".join('<li><a href="%s"><strong>%s</strong><span>%s</span></a></li>' % (link(cur, x, i), html.escape(g(tt, i)), html.escape(g(d, i))) for tt, d, x in b[1]))
         elif k == "calclinks":
             out.append('<ul class="bl yrs">%s</ul>' % "".join('<li><a href="%s">%s</a></li>' % (rel(cur, "eservices/tax-calc"), y) for y in b[1]))
         elif k == "table":
