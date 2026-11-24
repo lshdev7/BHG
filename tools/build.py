@@ -190,7 +190,7 @@ def visa_blocks(key, s, ext):
             lk.append((V.LINK_GROUPS[0][1][0][0], "immd:services/visas/info/specified-schemes"))
         b += [("h2", T["pay"]), ("p", T["payP"]), ("golinks", lk)]
     start = T["startExt"] if ext else fmt(T["startEntry"], s["t"])
-    b += [("h2", T["start"]), ("p", T["startP"]), ("golinks", [(start, "apps/immdes2" + key)]), ("p", T["startN"])]
+    b += [("h2", T["start"]), ("p", T["startP"]), ("go", start, "apps/immdes2" + key), ("p", T["startN"])]
     if s["deps"]:
         b += [("h2", T["group"]), ("p", T["groupP"])]
     b += [("h2", T["supp"]), ("p", T["suppP"]), ("golinks", [(T["suppL"], vpath(V.EXTP) + "/submitsupplementdoc")]),
@@ -201,7 +201,7 @@ def visa_blocks(key, s, ext):
 def common_blocks(key, title, intro):
     T = V.GOVT
     b = [("p", x) for x in intro]
-    b += [("h2", T["start"]), ("golinks", [(title, "apps/immdes2" + key)]), ("h2", T["help"]), ("p", T["helpP"])]
+    b += [("h2", T["start"]), ("go", title, "apps/immdes2" + key), ("h2", T["help"]), ("p", T["helpP"])]
     return b
 
 
